@@ -10,6 +10,12 @@ let package = Package(
         .library(
             name: "MQTT",
             targets: ["MQTT"]),
+        .executable(
+            name: "MQTTServer",
+            targets: ["MQTTServer"]),
+        .executable(
+            name: "MQTTClient",
+            targets: ["MQTTClient"])
     ],
     dependencies: [
         /// Event-driven network application framework for high performance protocol servers & clients, non-blocking.
@@ -21,6 +27,12 @@ let package = Package(
         .target(
             name: "MQTT",
             dependencies: ["NIO"]),
+        .target(
+            name: "MQTTServer",
+        dependencies: ["MQTT"]),
+        .target(
+            name: "MQTTClient",
+            dependencies: ["MQTT"]),
         .testTarget(
             name: "MQTTTests",
             dependencies: ["MQTT"]),
