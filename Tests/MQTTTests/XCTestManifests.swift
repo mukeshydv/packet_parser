@@ -4,6 +4,7 @@ import XCTest
 public func allTests() -> [XCTestCaseEntry] {
     return [
         testCase(MQTTTests.allTests),
+        testCase(RequestEncoderTests.allTests),
     ]
 }
 #endif

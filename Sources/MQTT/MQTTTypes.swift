@@ -7,27 +7,21 @@
 
 import Foundation
 
+
+
 public enum MQTTRequestMessage {
-    case connect
+    case connect(ConnectPacket)
+    
+    var encoded: [UInt8] {
+        switch self {
+        case .connect(let packet):
+            return packet.encode()
+        }
+    }
 }
 
 public enum MQTTResponseMessage {
     case connectAck
-}
-
-struct VariableByteInteger {
-    let value: UInt32
-    let bytes: [UInt8]
-    
-    init(_ value: UInt32) {
-        self.value = value
-        self.bytes = []
-    }
-    
-    init(_ bytes: UInt8...) {
-        self.value = 0
-        self.bytes = bytes
-    }
 }
 
 // Packet format
@@ -216,65 +210,6 @@ enum PropertyIdentifier: UInt8 {
     case wildcardSubscriptionAvailable = 0x28
     case subscriptionIdentifierAvailable = 0x29
     case sharedSubscriptionAvailable = 0x2A
-    
-    var dataType: MQTTDataType {
-        switch self {
-        case .payloadFormatIndicator:
-            return .byte
-        case .messageExpiryInterval:
-            return .fourByteInteger
-        case .contentType:
-            return .utf8String
-        case .responseTopic:
-            return .utf8String
-        case .correlationData:
-            return .binary
-        case .subscriptionIdentifier:
-            return .variableByteInteger
-        case .sessionExpiryInterval:
-            return .fourByteInteger
-        case .assignClientIdentifier:
-            return .utf8String
-        case .serverKeepAlive:
-            return .twoByteInteger
-        case .authenticationMethod:
-            return .utf8String
-        case .authenticationData:
-            return .binary
-        case .requestProblemInformation:
-            return .byte
-        case .willDelayInterval:
-            return .fourByteInteger
-        case .requestResponseInformation:
-            return .byte
-        case .responseInformation:
-            return .utf8String
-        case .serverReference:
-            return .utf8String
-        case .reasonString:
-            return .utf8String
-        case .receiveMaximum:
-            return .twoByteInteger
-        case .topicAliasMaximum:
-            return .twoByteInteger
-        case .topicAlias:
-            return .twoByteInteger
-        case .maximumQoS:
-            return .byte
-        case .retainAvailable:
-            return .byte
-        case .userProperty:
-            return .utf8String
-        case .maximumPacketSize:
-            return .fourByteInteger
-        case .wildcardSubscriptionAvailable:
-            return .byte
-        case .subscriptionIdentifierAvailable:
-            return .byte
-        case .sharedSubscriptionAvailable:
-            return .byte
-        }
-    }
     
     var isWillProperty: Bool {
         switch self {
