@@ -59,4 +59,8 @@ struct VariableByteInteger {
         self.bytes = bytes[startIndex..<index].map { $0 }
         self.value = value
     }
+    
+    var totlaLength: Int {
+        return bytes.count + Int(value)
+    }
 }

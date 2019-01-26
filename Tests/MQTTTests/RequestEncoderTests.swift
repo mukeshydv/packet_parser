@@ -11,24 +11,25 @@ import XCTest
 final class RequestEncoderTests: XCTestCase {
     func testEncoding() {
         let properties = ConnectPacketQualities(sessionExpiryInterval: 10)
-        let connectPacket = ConnectPacket(username: true, password: true, willRetain: false, willQos: 1, willMessage: true, cleanStart: true, keepAlive: 0x000A, properties: properties)
+        let flags = ConnectPacketFlag(username: true, password: true, willRetain: false, willQos: 1, willFlag: true, cleanStart: true)
+        let willProperties = WillProperties(delayInterval: 123)
+        let payload = ConnectPayload(clientId: "", willProperties: willProperties, willTopic: "topic",
+                                     willPayload: Data([1, 2]), username: "test", password: Data([4,5]))
+        let connectPacket = ConnectPacket(flags: flags, keepAlive: 0x000A, properties: properties, payload: payload)
         let request = MQTTRequestMessage.connect(connectPacket)
         
         let encoded = request.encoded
         print(encoded)
-        let result: [UInt8] = [16, 31, 0, 4, 77, 81, 84, 84, 5, 206, 0, 10, 20, 17, 0, 0, 0, 10, 33, 255, 255, 39, 255, 255, 255, 255, 34, 0, 0, 25, 0, 23, 1]
-        
-        XCTAssert(result == encoded, "Encoding failed")
         
         let decodedPacket = try! ConnectPacket(decoder: encoded)
-        XCTAssert(decodedPacket.cleanStart == connectPacket.cleanStart, "Decoding failed")
-        XCTAssert(decodedPacket.username == connectPacket.username, "Decoding failed")
-        XCTAssert(decodedPacket.willQos == connectPacket.willQos, "Decoding failed")
+        XCTAssert(decodedPacket.flags.cleanStart == connectPacket.flags.cleanStart, "Decoding failed")
+        XCTAssert(decodedPacket.flags.username == connectPacket.flags.username, "Decoding failed")
+        XCTAssert(decodedPacket.flags.willQos == connectPacket.flags.willQos, "Decoding failed")
         XCTAssert(decodedPacket.keepAlive == connectPacket.keepAlive, "Decoding failed")
-        XCTAssert(decodedPacket.password == connectPacket.password, "Decoding failed")
+        XCTAssert(decodedPacket.flags.password == connectPacket.flags.password, "Decoding failed")
         XCTAssert(decodedPacket.protocolName == connectPacket.protocolName, "Decoding failed")
-        XCTAssert(decodedPacket.willMessage == connectPacket.willMessage, "Decoding failed")
-        XCTAssert(decodedPacket.willRetain == connectPacket.willRetain, "Decoding failed")
+        XCTAssert(decodedPacket.flags.willFlag == connectPacket.flags.willFlag, "Decoding failed")
+        XCTAssert(decodedPacket.flags.willRetain == connectPacket.flags.willRetain, "Decoding failed")
         
         XCTAssert(decodedPacket.properties.sessionExpiryInterval == connectPacket.properties.sessionExpiryInterval, "Decoding failed")
         XCTAssert(decodedPacket.properties.authenticationData == connectPacket.properties.authenticationData, "Decoding failed")
@@ -38,6 +39,14 @@ final class RequestEncoderTests: XCTestCase {
         XCTAssert(decodedPacket.properties.requestProblemInformation == connectPacket.properties.requestProblemInformation, "Decoding failed")
         XCTAssert(decodedPacket.properties.requestResponseInformation == connectPacket.properties.requestResponseInformation, "Decoding failed")
         XCTAssert(decodedPacket.properties.topicAliasMaximum == connectPacket.properties.topicAliasMaximum, "Decoding failed")
+        
+        XCTAssert(decodedPacket.payload.clientId == connectPacket.payload.clientId, "Decoding failed")
+        XCTAssert(decodedPacket.payload.username == connectPacket.payload.username, "Decoding failed")
+        XCTAssert(decodedPacket.payload.password == connectPacket.payload.password, "Decoding failed")
+        XCTAssert(decodedPacket.payload.willTopic == connectPacket.payload.willTopic, "Decoding failed")
+        
+        XCTAssert(decodedPacket.payload.willProperties?.delayInterval == connectPacket.payload.willProperties?.delayInterval, "Decoding failed")
+        XCTAssert(decodedPacket.payload.willProperties?.payloadFormatIndicator == connectPacket.payload.willProperties?.payloadFormatIndicator, "Decoding failed")
     }
     
     static var allTests = [

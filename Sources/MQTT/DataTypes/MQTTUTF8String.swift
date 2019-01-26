@@ -28,23 +28,23 @@ struct MQTTUTF8String {
         self.bytes = length.bytes + utf8View.map { $0 }
     }
     
-    init(from bytes: [UInt8], startIndex: UInt32 = 0) throws {
+    init(from decoder: [UInt8], startIndex: UInt32 = 0) throws {
         let startIndex = Int(startIndex + 2)
         
-        guard startIndex <= bytes.count else {
+        guard startIndex <= decoder.count else {
             throw MQTTDataTypeError.invalidUtf8String
         }
         
-        length = UInt16(bytes[startIndex-2], bytes[startIndex-1])
+        length = UInt16(decoder[startIndex-2], decoder[startIndex-1])
 
         let endIndex = startIndex + Int(length)
         
-        guard endIndex <= bytes.count else {
+        guard endIndex <= decoder.count else {
             throw MQTTDataTypeError.invalidUtf8String
         }
         
-        let bytes = bytes[startIndex..<endIndex].map { $0 }
-        self.bytes = [bytes[startIndex-2], bytes[startIndex-1]] + bytes
+        let bytes = decoder[startIndex..<endIndex].map { $0 }
+        self.bytes = [decoder[startIndex-2], decoder[startIndex-1]] + bytes
         
         guard let value = String(bytes: bytes, encoding: .utf8) else {
             throw MQTTDataTypeError.invalidUtf8String
