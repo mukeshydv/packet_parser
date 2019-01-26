@@ -7,6 +7,10 @@
 
 import Foundation
 
+enum VariableByteError: Error {
+    case error(String)
+}
+
 struct VariableByteInteger {
     let value: UInt32
     let bytes: [UInt8]
@@ -30,25 +34,29 @@ struct VariableByteInteger {
         self.bytes = bytes
     }
     
-    init(_ bytes: [UInt8]) {
-        self.bytes = bytes
+    init(from bytes: [UInt8], startIndex: Int = 0) throws {
         
         var multiplier: UInt32 = 1
         var value: UInt32 = 0
         var encodedByte: UInt8
-        var index = 0
+        var index = startIndex
         
         repeat {
+            guard index < bytes.count else {
+                throw VariableByteError.error("Invalid")
+            }
+            
             encodedByte = bytes[index]
             value += UInt32(encodedByte & 127) * multiplier
             if multiplier > 128 * 128 * 128 {
-                // Errror
+                throw VariableByteError.error("Size error")
             }
             
             multiplier *= 128
             index += 1
         } while (encodedByte & 128) != 0
         
+        self.bytes = bytes[startIndex..<index].map { $0 }
         self.value = value
     }
 }
