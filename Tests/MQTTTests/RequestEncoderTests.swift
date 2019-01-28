@@ -10,14 +10,14 @@ import XCTest
 
 final class RequestEncoderTests: XCTestCase {
     func testEncoding() {
-        let properties = ConnectPacketQualities(
+        let properties = ConnectPacket.Header(
             sessionExpiryInterval: 10,
             userProperty: ["key": "value"],
             authenticationMethod: "authMethod",
             authenticationData: Data([0, 2, 43])
         )
-        let flags = ConnectPacketFlag(username: true, password: true, willRetain: false, willQos: 1, willFlag: true, cleanStart: true)
-        let willProperties = WillProperties(
+        let flags = ConnectPacket.Flags(username: true, password: true, willRetain: false, willQos: 1, willFlag: true, cleanStart: true)
+        let willProperties = ConnectPacket.Payload.Properties(
             delayInterval: 123,
             payloadFormatIndicator: 5,
             messageExpiryInterval: 23875,
@@ -26,7 +26,7 @@ final class RequestEncoderTests: XCTestCase {
             correlationData: Data([78, 43]),
             userProperty: ["test": "user"]
         )
-        let payload = ConnectPayload(clientId: "", willProperties: willProperties, willTopic: "topic",
+        let payload = ConnectPacket.Payload(clientId: "", willProperties: willProperties, willTopic: "topic",
                                      willPayload: Data([1, 2]), username: "test", password: Data([4,5]))
         let connectPacket = ConnectPacket(flags: flags, keepAlive: 0x000A, properties: properties, payload: payload)
         let request = MQTTRequestMessage.connect(connectPacket)
