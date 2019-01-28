@@ -58,145 +58,94 @@ public struct ConnectPacketQualities {
         var authenticationMethod: String? = nil
         var authenticationData: Data? = nil
         
-        var isDecoded: [PropertyIdentifier: Bool] = [:]
+        var isDecoded: [MQTTPropertyIdentifier: Bool] = [:]
         
         var currentIndex = 0
         
         while currentIndex < decoder.count {
-            if currentIndex < decoder.count && decoder[currentIndex] == PropertyIdentifier.sessionExpiryInterval.rawValue {
-                if isDecoded[.sessionExpiryInterval] == true {
+            if let property = try FourByteProperty(MQTTPropertyIdentifier.sessionExpiryInterval, decoder, startIndex: currentIndex) {
+                if isDecoded[property.identifier] == true {
                     throw ConnectPacketError.duplicateQuality("sessionExpiryInterval")
                 }
-                isDecoded[.sessionExpiryInterval] = true
+                isDecoded[property.identifier] = true
                 
-                guard currentIndex + 4 < decoder.count else {
-                    // Error decoding
-                    throw ConnectPacketError.quality("sessionExpiryInterval value not available")
-                }
-                
-                sessionExpiryInterval = UInt32(
-                    decoder[currentIndex+1],
-                    decoder[currentIndex+2],
-                    decoder[currentIndex+3],
-                    decoder[currentIndex+4]
-                )
-                
-                currentIndex += 5
+                sessionExpiryInterval = property.value
+                currentIndex += property.propertyLength + 1
             }
             
-            if currentIndex < decoder.count && decoder[currentIndex] == PropertyIdentifier.receiveMaximum.rawValue {
-                if isDecoded[.receiveMaximum] == true {
+            if let property = try TwoByteProperty(MQTTPropertyIdentifier.receiveMaximum, decoder, startIndex: currentIndex) {
+                if isDecoded[property.identifier] == true {
                     throw ConnectPacketError.duplicateQuality("receiveMaximum")
                 }
-                isDecoded[.receiveMaximum] = true
+                isDecoded[property.identifier] = true
                 
-                guard currentIndex + 2 < decoder.count else {
-                    // Error decoding
-                    throw ConnectPacketError.quality("receiveMaximum value not available")
-                }
-                
-                receiveMaximum = UInt16(decoder[currentIndex+1], decoder[currentIndex+2])
-                currentIndex += 3
+                receiveMaximum = property.value
+                currentIndex += property.propertyLength + 1
             }
             
-            if currentIndex < decoder.count && decoder[currentIndex] == PropertyIdentifier.maximumPacketSize.rawValue {
-                if isDecoded[.maximumPacketSize] == true {
+            if let property = try FourByteProperty(MQTTPropertyIdentifier.maximumPacketSize, decoder, startIndex: currentIndex) {
+                if isDecoded[property.identifier] == true {
                     throw ConnectPacketError.duplicateQuality("maximumPacketSize")
                 }
-                isDecoded[.maximumPacketSize] = true
+                isDecoded[property.identifier] = true
                 
-                guard currentIndex + 4 < decoder.count else {
-                    // Error decoding
-                    throw ConnectPacketError.quality("maximumPacketSize value not available")
-                }
-                
-                maximumPacketSize = UInt32(
-                    decoder[currentIndex+1],
-                    decoder[currentIndex+2],
-                    decoder[currentIndex+3],
-                    decoder[currentIndex+4]
-                )
-                
-                currentIndex += 5
+                maximumPacketSize = property.value
+                currentIndex += property.propertyLength + 1
             }
             
-            if currentIndex < decoder.count && decoder[currentIndex] == PropertyIdentifier.topicAliasMaximum.rawValue {
-                if isDecoded[.topicAliasMaximum] == true {
+            if let property = try TwoByteProperty(MQTTPropertyIdentifier.topicAliasMaximum, decoder, startIndex: currentIndex) {
+                if isDecoded[property.identifier] == true {
                     throw ConnectPacketError.duplicateQuality("topicAliasMaximum")
                 }
-                isDecoded[.topicAliasMaximum] = true
+                isDecoded[property.identifier] = true
                 
-                guard currentIndex + 2 < decoder.count else {
-                    // Error decoding
-                    throw ConnectPacketError.quality("topicAliasMaximum value not available")
-                }
-                
-                topicAliasMaximum = UInt16(decoder[currentIndex+1], decoder[currentIndex+2])
-                currentIndex += 3
+                topicAliasMaximum = property.value
+                currentIndex += property.propertyLength + 1
             }
             
-            if currentIndex < decoder.count && decoder[currentIndex] == PropertyIdentifier.requestResponseInformation.rawValue {
-                if isDecoded[.requestResponseInformation] == true {
+            if let property = try ByteProperty(MQTTPropertyIdentifier.requestResponseInformation, decoder, startIndex: currentIndex) {
+                if isDecoded[property.identifier] == true {
                     throw ConnectPacketError.duplicateQuality("requestResponseInformation")
                 }
-                isDecoded[.requestResponseInformation] = true
+                isDecoded[property.identifier] = true
                 
-                guard currentIndex + 1 < decoder.count else {
-                    // Error decoding
-                    throw ConnectPacketError.quality("requestResponseInformation value not available")
-                }
-                
-                requestResponseInformation = decoder[currentIndex+1]
-                currentIndex += 2
+                requestResponseInformation = property.value
+                currentIndex += property.propertyLength + 1
             }
             
-            if currentIndex < decoder.count && decoder[currentIndex] == PropertyIdentifier.requestProblemInformation.rawValue {
-                if isDecoded[.requestProblemInformation] == true {
+            if let property = try ByteProperty(MQTTPropertyIdentifier.requestProblemInformation, decoder, startIndex: currentIndex) {
+                if isDecoded[property.identifier] == true {
                     throw ConnectPacketError.duplicateQuality("requestProblemInformation")
                 }
-                isDecoded[.requestProblemInformation] = true
+                isDecoded[property.identifier] = true
                 
-                guard currentIndex + 1 < decoder.count else {
-                    // Error decoding
-                    throw ConnectPacketError.quality("requestProblemInformation value not available")
-                }
-                
-                requestProblemInformation = decoder[currentIndex+1]
-                currentIndex += 2
+                requestProblemInformation = property.value
+                currentIndex += property.propertyLength + 1
             }
             
-            while currentIndex < decoder.count && decoder[currentIndex] == PropertyIdentifier.userProperty.rawValue {
-                let startIndex = UInt32(currentIndex + 1)
-                let utf8Pair = try MQTTUTF8StringPair(from: decoder, startIndex: startIndex)
-                userProperty[utf8Pair.key] = utf8Pair.value
-                
-                currentIndex += Int(utf8Pair.keyLength) + Int(utf8Pair.valueLength) + 5
+            while let property = try StringPairProperty(MQTTPropertyIdentifier.userProperty, decoder, startIndex: currentIndex) {
+                userProperty[property.key] = property.value
+                currentIndex += property.propertyLength + 1
             }
             
-            if currentIndex < decoder.count && decoder[currentIndex] == PropertyIdentifier.authenticationMethod.rawValue {
+            if let property = try StringProperty(MQTTPropertyIdentifier.authenticationMethod, decoder, startIndex: currentIndex) {
                 if isDecoded[.authenticationMethod] == true {
                     throw ConnectPacketError.duplicateQuality("authenticationMethod")
                 }
                 isDecoded[.authenticationMethod] = true
                 
-                let startIndex = UInt32(currentIndex + 1)
-                let utf8String = try MQTTUTF8String(from: decoder, startIndex: startIndex)
-                authenticationMethod = utf8String.value
-                
-                currentIndex += Int(utf8String.length) + 3
+                authenticationMethod = property.value
+                currentIndex += property.propertyLength + 1
             }
             
-            if currentIndex < decoder.count && decoder[currentIndex] == PropertyIdentifier.authenticationData.rawValue {
+            if let property = try DataProperty(MQTTPropertyIdentifier.authenticationData, decoder, startIndex: currentIndex) {
                 if isDecoded[.authenticationData] == true {
                     throw ConnectPacketError.duplicateQuality("authenticationData")
                 }
                 isDecoded[.authenticationData] = true
                 
-                let startIndex = UInt32(currentIndex + 1)
-                let data = try MQTTData(from: decoder, startIndex: startIndex)
-                authenticationData = data.value
-                
-                currentIndex += Int(data.length) + 3
+                authenticationData = property.value
+                currentIndex += property.propertyLength + 1
             }
         }
         
@@ -216,40 +165,40 @@ public struct ConnectPacketQualities {
     func encode() throws -> [UInt8] {
         var bytes: [UInt8] = []
         
-        bytes.append(PropertyIdentifier.sessionExpiryInterval.rawValue)
+        bytes.append(MQTTPropertyIdentifier.sessionExpiryInterval.rawValue)
         bytes.append(contentsOf: sessionExpiryInterval.bytes)
         
-        bytes.append(PropertyIdentifier.receiveMaximum.rawValue)
+        bytes.append(MQTTPropertyIdentifier.receiveMaximum.rawValue)
         bytes.append(contentsOf: receiveMaximum.bytes)
         
-        bytes.append(PropertyIdentifier.maximumPacketSize.rawValue)
+        bytes.append(MQTTPropertyIdentifier.maximumPacketSize.rawValue)
         bytes.append(contentsOf: maximumPacketSize.bytes)
         
-        bytes.append(PropertyIdentifier.topicAliasMaximum.rawValue)
+        bytes.append(MQTTPropertyIdentifier.topicAliasMaximum.rawValue)
         bytes.append(contentsOf: topicAliasMaximum.bytes)
         
-        bytes.append(PropertyIdentifier.requestResponseInformation.rawValue)
+        bytes.append(MQTTPropertyIdentifier.requestResponseInformation.rawValue)
         bytes.append(requestResponseInformation)
         
-        bytes.append(PropertyIdentifier.requestProblemInformation.rawValue)
+        bytes.append(MQTTPropertyIdentifier.requestProblemInformation.rawValue)
         bytes.append(requestProblemInformation)
         
         for property in userProperty {
-            bytes.append(PropertyIdentifier.userProperty.rawValue)
+            bytes.append(MQTTPropertyIdentifier.userProperty.rawValue)
             
             let keyValueUtf8 = try MQTTUTF8StringPair(property.key, property.value)
             bytes.append(contentsOf: keyValueUtf8.bytes)
         }
         
         if let authenticationMethod = self.authenticationMethod {
-            bytes.append(PropertyIdentifier.authenticationMethod.rawValue)
+            bytes.append(MQTTPropertyIdentifier.authenticationMethod.rawValue)
             
             let utf8String = try MQTTUTF8String(authenticationMethod)
             bytes.append(contentsOf: utf8String.bytes)
         }
         
         if let authenticationData = self.authenticationData {
-            bytes.append(PropertyIdentifier.authenticationData.rawValue)
+            bytes.append(MQTTPropertyIdentifier.authenticationData.rawValue)
             bytes.append(contentsOf: authenticationData.bytes)
         }
         
@@ -595,112 +544,74 @@ public struct WillProperties {
         
         self.length = lengthVariable.value + UInt32(lengthVariable.bytes.count)
         
-        var isDecoded: [PropertyIdentifier: Bool] = [:]
+        var isDecoded: [MQTTPropertyIdentifier: Bool] = [:]
         var currentIndex = lengthVariable.bytes.count
         
         while currentIndex < length {
-            if currentIndex < decoder.count && decoder[currentIndex] == PropertyIdentifier.willDelayInterval.rawValue {
-                if isDecoded[.willDelayInterval] == true {
+            
+            if let property = try FourByteProperty(MQTTPropertyIdentifier.willDelayInterval, decoder, startIndex: currentIndex) {
+                if isDecoded[property.identifier] == true {
                     throw ConnectPacketError.payloadError("willDelayInterval")
                 }
-                isDecoded[.willDelayInterval] = true
+                isDecoded[property.identifier] = true
                 
-                guard currentIndex + 4 < decoder.count else {
-                    // Error decoding
-                    throw ConnectPacketError.payloadError("willDelayInterval value not available")
-                }
-                
-                delayInterval = UInt32(
-                    decoder[currentIndex+1],
-                    decoder[currentIndex+2],
-                    decoder[currentIndex+3],
-                    decoder[currentIndex+4]
-                )
-                
-                currentIndex += 5
+                delayInterval = property.value
+                currentIndex += property.propertyLength + 1
             }
             
-            if currentIndex < decoder.count && decoder[currentIndex] == PropertyIdentifier.payloadFormatIndicator.rawValue {
-                if isDecoded[.payloadFormatIndicator] == true {
+            if let property = try ByteProperty(MQTTPropertyIdentifier.payloadFormatIndicator, decoder, startIndex: currentIndex) {
+                if isDecoded[property.identifier] == true {
                     throw ConnectPacketError.payloadError("payloadFormatIndicator")
                 }
-                isDecoded[.payloadFormatIndicator] = true
+                isDecoded[property.identifier] = true
                 
-                guard currentIndex + 1 < decoder.count else {
-                    // Error decoding
-                    throw ConnectPacketError.payloadError("payloadFormatIndicator value not available")
-                }
-                
-                payloadFormatIndicator = decoder[currentIndex+1]
-                currentIndex += 2
+                payloadFormatIndicator = property.value
+                currentIndex += property.propertyLength + 1
             }
             
-            if currentIndex < decoder.count && decoder[currentIndex] == PropertyIdentifier.messageExpiryInterval.rawValue {
-                if isDecoded[.messageExpiryInterval] == true {
+            if let property = try FourByteProperty(MQTTPropertyIdentifier.messageExpiryInterval, decoder, startIndex: currentIndex) {
+                if isDecoded[property.identifier] == true {
                     throw ConnectPacketError.payloadError("messageExpiryInterval")
                 }
-                isDecoded[.messageExpiryInterval] = true
+                isDecoded[property.identifier] = true
                 
-                guard currentIndex + 4 < decoder.count else {
-                    // Error decoding
-                    throw ConnectPacketError.payloadError("messageExpiryInterval value not available")
-                }
-                
-                messageExpiryInterval = UInt32(
-                    decoder[currentIndex+1],
-                    decoder[currentIndex+2],
-                    decoder[currentIndex+3],
-                    decoder[currentIndex+4]
-                )
-                
-                currentIndex += 5
+                messageExpiryInterval = property.value
+                currentIndex += property.propertyLength + 1
             }
             
-            if currentIndex < decoder.count && decoder[currentIndex] == PropertyIdentifier.contentType.rawValue {
-                if isDecoded[.contentType] == true {
+            if let property = try StringProperty(MQTTPropertyIdentifier.contentType, decoder, startIndex: currentIndex) {
+                if isDecoded[property.identifier] == true {
                     throw ConnectPacketError.payloadError("contentType")
                 }
-                isDecoded[.contentType] = true
+                isDecoded[property.identifier] = true
                 
-                let startIndex = UInt32(currentIndex + 1)
-                let utf8String = try MQTTUTF8String(from: decoder, startIndex: startIndex)
-                contentType = utf8String.value
-                
-                currentIndex += Int(utf8String.length) + 3
+                contentType = property.value
+                currentIndex += property.propertyLength + 1
             }
             
-            if currentIndex < decoder.count && decoder[currentIndex] == PropertyIdentifier.responseTopic.rawValue {
-                if isDecoded[.responseTopic] == true {
+            if let property = try StringProperty(MQTTPropertyIdentifier.responseTopic, decoder, startIndex: currentIndex) {
+                if isDecoded[property.identifier] == true {
                     throw ConnectPacketError.payloadError("responseTopic")
                 }
-                isDecoded[.responseTopic] = true
+                isDecoded[property.identifier] = true
                 
-                let startIndex = UInt32(currentIndex + 1)
-                let utf8String = try MQTTUTF8String(from: decoder, startIndex: startIndex)
-                responseTopic = utf8String.value
-                
-                currentIndex += Int(utf8String.length) + 3
+                responseTopic = property.value
+                currentIndex += property.propertyLength + 1
             }
             
-            if currentIndex < decoder.count && decoder[currentIndex] == PropertyIdentifier.correlationData.rawValue {
-                if isDecoded[.correlationData] == true {
+            if let property = try DataProperty(MQTTPropertyIdentifier.correlationData, decoder, startIndex: currentIndex) {
+                if isDecoded[property.identifier] == true {
                     throw ConnectPacketError.duplicateQuality("correlationData")
                 }
-                isDecoded[.correlationData] = true
+                isDecoded[property.identifier] = true
                 
-                let startIndex = UInt32(currentIndex + 1)
-                let data = try MQTTData(from: decoder, startIndex: startIndex)
-                correlationData = data.value
-                
-                currentIndex += Int(data.length) + 3
+                correlationData = property.value
+                currentIndex += property.propertyLength + 1
             }
             
-            while currentIndex < decoder.count && decoder[currentIndex] == PropertyIdentifier.userProperty.rawValue {
-                let startIndex = UInt32(currentIndex + 1)
-                let utf8Pair = try MQTTUTF8StringPair(from: decoder, startIndex: startIndex)
-                userProperty[utf8Pair.key] = utf8Pair.value
-                
-                currentIndex += Int(utf8Pair.keyLength) + Int(utf8Pair.valueLength) + 5
+            while let property = try StringPairProperty(MQTTPropertyIdentifier.userProperty, decoder, startIndex: currentIndex) {
+                userProperty[property.key] = property.value
+                currentIndex += property.propertyLength + 1
             }
         }
         
@@ -717,38 +628,38 @@ public struct WillProperties {
     func encode() throws -> [UInt8] {
         var bytes: [UInt8] = []
         
-        bytes.append(PropertyIdentifier.willDelayInterval.rawValue)
+        bytes.append(MQTTPropertyIdentifier.willDelayInterval.rawValue)
         bytes.append(contentsOf: delayInterval.bytes)
         
-        bytes.append(PropertyIdentifier.payloadFormatIndicator.rawValue)
+        bytes.append(MQTTPropertyIdentifier.payloadFormatIndicator.rawValue)
         bytes.append(payloadFormatIndicator)
         
         if let property = messageExpiryInterval {
-            bytes.append(PropertyIdentifier.messageExpiryInterval.rawValue)
+            bytes.append(MQTTPropertyIdentifier.messageExpiryInterval.rawValue)
             bytes.append(contentsOf: property.bytes)
         }
         
         if let property = contentType {
-            bytes.append(PropertyIdentifier.contentType.rawValue)
+            bytes.append(MQTTPropertyIdentifier.contentType.rawValue)
             let utf8 = try MQTTUTF8String(property)
             bytes.append(contentsOf: utf8.bytes)
         }
         
         if let property = responseTopic {
-            bytes.append(PropertyIdentifier.responseTopic.rawValue)
+            bytes.append(MQTTPropertyIdentifier.responseTopic.rawValue)
             let utf8 = try MQTTUTF8String(property)
             bytes.append(contentsOf: utf8.bytes)
         }
         
         if let property = correlationData {
-            bytes.append(PropertyIdentifier.correlationData.rawValue)
+            bytes.append(MQTTPropertyIdentifier.correlationData.rawValue)
             let utf8 = try MQTTData(property)
             bytes.append(contentsOf: utf8.bytes)
         }
         
         if let property = userProperty {
             for prop in property {
-                bytes.append(PropertyIdentifier.userProperty.rawValue)
+                bytes.append(MQTTPropertyIdentifier.userProperty.rawValue)
                 let utf8 = try MQTTUTF8StringPair(prop.key, prop.value)
                 bytes.append(contentsOf: utf8.bytes)
             }

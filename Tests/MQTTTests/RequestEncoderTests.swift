@@ -10,9 +10,22 @@ import XCTest
 
 final class RequestEncoderTests: XCTestCase {
     func testEncoding() {
-        let properties = ConnectPacketQualities(sessionExpiryInterval: 10)
+        let properties = ConnectPacketQualities(
+            sessionExpiryInterval: 10,
+            userProperty: ["key": "value"],
+            authenticationMethod: "authMethod",
+            authenticationData: Data([0, 2, 43])
+        )
         let flags = ConnectPacketFlag(username: true, password: true, willRetain: false, willQos: 1, willFlag: true, cleanStart: true)
-        let willProperties = WillProperties(delayInterval: 123)
+        let willProperties = WillProperties(
+            delayInterval: 123,
+            payloadFormatIndicator: 5,
+            messageExpiryInterval: 23875,
+            contentType: "application/json",
+            responseTopic: "sampleTopic",
+            correlationData: Data([78, 43]),
+            userProperty: ["test": "user"]
+        )
         let payload = ConnectPayload(clientId: "", willProperties: willProperties, willTopic: "topic",
                                      willPayload: Data([1, 2]), username: "test", password: Data([4,5]))
         let connectPacket = ConnectPacket(flags: flags, keepAlive: 0x000A, properties: properties, payload: payload)
@@ -39,6 +52,9 @@ final class RequestEncoderTests: XCTestCase {
         XCTAssert(decodedPacket.properties.requestProblemInformation == connectPacket.properties.requestProblemInformation, "Decoding failed")
         XCTAssert(decodedPacket.properties.requestResponseInformation == connectPacket.properties.requestResponseInformation, "Decoding failed")
         XCTAssert(decodedPacket.properties.topicAliasMaximum == connectPacket.properties.topicAliasMaximum, "Decoding failed")
+        XCTAssert(decodedPacket.properties.userProperty == connectPacket.properties.userProperty, "Decoding failed")
+        XCTAssert(decodedPacket.properties.authenticationMethod == connectPacket.properties.authenticationMethod, "Decoding failed")
+        XCTAssert(decodedPacket.properties.authenticationData == connectPacket.properties.authenticationData, "Decoding failed")
         
         XCTAssert(decodedPacket.payload.clientId == connectPacket.payload.clientId, "Decoding failed")
         XCTAssert(decodedPacket.payload.username == connectPacket.payload.username, "Decoding failed")
@@ -47,6 +63,11 @@ final class RequestEncoderTests: XCTestCase {
         
         XCTAssert(decodedPacket.payload.willProperties?.delayInterval == connectPacket.payload.willProperties?.delayInterval, "Decoding failed")
         XCTAssert(decodedPacket.payload.willProperties?.payloadFormatIndicator == connectPacket.payload.willProperties?.payloadFormatIndicator, "Decoding failed")
+        XCTAssert(decodedPacket.payload.willProperties?.contentType == connectPacket.payload.willProperties?.contentType, "Decoding failed")
+        XCTAssert(decodedPacket.payload.willProperties?.correlationData == connectPacket.payload.willProperties?.correlationData, "Decoding failed")
+        XCTAssert(decodedPacket.payload.willProperties?.messageExpiryInterval == connectPacket.payload.willProperties?.messageExpiryInterval, "Decoding failed")
+        XCTAssert(decodedPacket.payload.willProperties?.responseTopic == connectPacket.payload.willProperties?.responseTopic, "Decoding failed")
+        XCTAssert(decodedPacket.payload.willProperties?.userProperty == connectPacket.payload.willProperties?.userProperty, "Decoding failed")
     }
     
     static var allTests = [
