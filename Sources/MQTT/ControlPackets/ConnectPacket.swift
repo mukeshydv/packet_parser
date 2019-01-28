@@ -184,8 +184,8 @@ public struct ConnectPacket {
         let receiveMaximum: UInt16
         let maximumPacketSize: UInt32
         let topicAliasMaximum: UInt16
-        let requestResponseInformation: UInt8
-        let requestProblemInformation: UInt8
+        let requestResponseInformation: Bool
+        let requestProblemInformation: Bool
         let userProperty: [String: String]
         let authenticationMethod: String?
         let authenticationData: Data?
@@ -195,8 +195,8 @@ public struct ConnectPacket {
             receiveMaximum: UInt16 = .max,
             maximumPacketSize: UInt32 = .max,
             topicAliasMaximum: UInt16 = 0,
-            requestResponseInformation: UInt8 = 0,
-            requestProblemInformation: UInt8 = 1,
+            requestResponseInformation: Bool = false,
+            requestProblemInformation: Bool = true,
             userProperty: [String: String] = [:],
             authenticationMethod: String? = nil,
             authenticationData: Data? = nil
@@ -217,8 +217,8 @@ public struct ConnectPacket {
             var receiveMaximum: UInt16 = .max
             var maximumPacketSize: UInt32 = .max
             var topicAliasMaximum: UInt16 = 0
-            var requestResponseInformation: UInt8 = 0
-            var requestProblemInformation: UInt8 = 1
+            var requestResponseInformation: Bool = false
+            var requestProblemInformation: Bool = true
             var userProperty: [String: String] = [:]
             var authenticationMethod: String? = nil
             var authenticationData: Data? = nil
@@ -274,7 +274,7 @@ public struct ConnectPacket {
                     }
                     isDecoded[property.identifier] = true
                     
-                    requestResponseInformation = property.value
+                    requestResponseInformation = property.value == 1
                     currentIndex += property.propertyLength + 1
                 }
                 
@@ -284,7 +284,7 @@ public struct ConnectPacket {
                     }
                     isDecoded[property.identifier] = true
                     
-                    requestProblemInformation = property.value
+                    requestProblemInformation = property.value == 1
                     currentIndex += property.propertyLength + 1
                 }
                 
@@ -343,10 +343,10 @@ public struct ConnectPacket {
             bytes.append(contentsOf: topicAliasMaximum.bytes)
             
             bytes.append(MQTTPropertyIdentifier.requestResponseInformation.rawValue)
-            bytes.append(requestResponseInformation)
+            bytes.append(requestResponseInformation ? 0x01 : 0x00)
             
             bytes.append(MQTTPropertyIdentifier.requestProblemInformation.rawValue)
-            bytes.append(requestProblemInformation)
+            bytes.append(requestProblemInformation ? 0x01 : 0x00)
             
             for property in userProperty {
                 bytes.append(MQTTPropertyIdentifier.userProperty.rawValue)
@@ -498,7 +498,7 @@ public struct ConnectPacket {
         
         public struct Properties {
             let delayInterval: UInt32
-            let payloadFormatIndicator: UInt8
+            let payloadFormatIndicator: Bool
             let messageExpiryInterval: UInt32?
             let contentType: String?
             let responseTopic: String?
@@ -509,7 +509,7 @@ public struct ConnectPacket {
             
             init(
                 delayInterval: UInt32 = 0,
-                payloadFormatIndicator: UInt8 = 0,
+                payloadFormatIndicator: Bool = false,
                 messageExpiryInterval: UInt32? = nil,
                 contentType: String? = nil,
                 responseTopic: String? = nil,
@@ -529,7 +529,7 @@ public struct ConnectPacket {
             init(decoder: [UInt8]) throws {
                 
                 var delayInterval: UInt32 = 0
-                var payloadFormatIndicator: UInt8 = 0
+                var payloadFormatIndicator: Bool = false
                 var messageExpiryInterval: UInt32? = nil
                 var contentType: String? = nil
                 var responseTopic: String? = nil
@@ -564,7 +564,7 @@ public struct ConnectPacket {
                         }
                         isDecoded[property.identifier] = true
                         
-                        payloadFormatIndicator = property.value
+                        payloadFormatIndicator = property.value == 1
                         currentIndex += property.propertyLength + 1
                     }
                     
@@ -631,7 +631,7 @@ public struct ConnectPacket {
                 bytes.append(contentsOf: delayInterval.bytes)
                 
                 bytes.append(MQTTPropertyIdentifier.payloadFormatIndicator.rawValue)
-                bytes.append(payloadFormatIndicator)
+                bytes.append(payloadFormatIndicator ? 0x01 : 0x00)
                 
                 if let property = messageExpiryInterval {
                     bytes.append(MQTTPropertyIdentifier.messageExpiryInterval.rawValue)

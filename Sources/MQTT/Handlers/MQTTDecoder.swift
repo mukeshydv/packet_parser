@@ -14,6 +14,8 @@ public class MQTTRequestDecoder: ByteToMessageDecoder {
     public var cumulationBuffer: ByteBuffer?
     
     public func decode(ctx: ChannelHandlerContext, buffer: inout ByteBuffer) throws -> DecodingState {
+        print(buffer.readBytes(length: buffer.capacity))
+        print(buffer.readString(length: buffer.capacity))
         ctx.fireChannelRead(self.wrapInboundOut(.connect(ConnectPacket(payload: ConnectPacket.Payload(clientId: "")))))
         return .needMoreData
     }

@@ -19,12 +19,12 @@ final class RequestEncoderTests: XCTestCase {
         let flags = ConnectPacket.Flags(username: true, password: true, willRetain: false, willQos: 1, willFlag: true, cleanStart: true)
         let willProperties = ConnectPacket.Payload.Properties(
             delayInterval: 123,
-            payloadFormatIndicator: 5,
+            payloadFormatIndicator: false,
             messageExpiryInterval: 23875,
             contentType: "application/json",
             responseTopic: "sampleTopic",
             correlationData: Data([78, 43]),
-            userProperty: ["test": "user"]
+            userProperty: ["test": "user3"]
         )
         let payload = ConnectPacket.Payload(clientId: "", willProperties: willProperties, willTopic: "topic",
                                      willPayload: Data([1, 2]), username: "test", password: Data([4,5]))
