@@ -41,14 +41,14 @@ extension UInt16 {
 }
 
 extension Data {
-    var bytes: [UInt8] {
-        let count = self.count
-        if count > UInt16.max {
-            return []
-        }
-        
-        return UInt16(count).bytes + self.map { $0 }
-    }
+//    var bytes: [UInt8] {
+//        let count = self.count
+//        if count > UInt16.max {
+//            return []
+//        }
+//        
+//        return UInt16(count).bytes + self.map { $0 }
+//    }
     
     init(_ bytes: [UInt8]) {
         self.init(bytes: bytes)

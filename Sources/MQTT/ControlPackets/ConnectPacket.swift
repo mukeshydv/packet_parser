@@ -364,7 +364,8 @@ public struct ConnectPacket {
             
             if let authenticationData = self.authenticationData {
                 bytes.append(MQTTPropertyIdentifier.authenticationData.rawValue)
-                bytes.append(contentsOf: authenticationData.bytes)
+                let utf8 = try MQTTData(authenticationData)
+                bytes.append(contentsOf: utf8.bytes)
             }
             
             return bytes
