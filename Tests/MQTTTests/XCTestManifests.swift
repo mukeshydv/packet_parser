@@ -5,7 +5,7 @@ public func allTests() -> [XCTestCaseEntry] {
     return [
         testCase(MQTTTests.allTests),
         testCase(RequestEncoderTests.allTests),
-        testCase(DataTypeTests.allTests),
+        testCase(DataTypesTests.allTests),
         testCase(RequestDecoderTests.allTests)
     ]
 }
