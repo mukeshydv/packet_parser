@@ -7,9 +7,21 @@
 
 import Foundation
 
-struct SubscribePacket {
+struct SubscribePacket: MQTTPacketCodable {
     let header: Header
     let payload: Payload
+    
+    let fixedHeader: MQTTPacketFixedHeader
+    
+    func encodedVariableHeader() throws -> [UInt8] {
+        // TODO:
+        return []
+    }
+    
+    func encodedPayload() throws -> [UInt8] {
+        // TODO:
+        return []
+    }
     
     struct Header {
         let identifier: UInt16

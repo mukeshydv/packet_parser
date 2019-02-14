@@ -7,12 +7,25 @@
 
 import Foundation
 
-struct PublishPacket {
+struct PublishPacket: MQTTPacketCodable {
+    
     let dup: Bool
     let qos: UInt8
     let retain: Bool
     let header: Header
     let payload: Data?
+    
+    let fixedHeader: MQTTPacketFixedHeader
+    
+    func encodedVariableHeader() throws -> [UInt8] {
+        // TODO:
+        return []
+    }
+    
+    func encodedPayload() throws -> [UInt8] {
+        // TODO:
+        return []
+    }
     
     struct Header {
         let topicName: String

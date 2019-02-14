@@ -7,7 +7,9 @@
 
 import Foundation
 
-struct ConnackPacket {
+struct ConnackPacket: MQTTPacketCodable {
+    let fixedHeader: MQTTPacketFixedHeader
+    
     let header: Header // Variable header
     
     init?(decoder: [UInt8]) throws {
@@ -19,6 +21,8 @@ struct ConnackPacket {
             return nil
         }
         
+        self.fixedHeader = MQTTPacketFixedHeader(packetType: .CONNACK, flags: 0)
+        
         let variableHeaderLength = try VariableByteInteger(from: decoder, startIndex: 1)
         if variableHeaderLength.value + 1 != decoder.count - variableHeaderLength.bytes.count {
             throw ConnectPacketError.invalidPacket("Packet variable header size invalid")
@@ -29,6 +33,16 @@ struct ConnackPacket {
         } else {
             return nil
         }
+    }
+    
+    func encodedVariableHeader() throws -> [UInt8] {
+        // TODO:
+        return []
+    }
+    
+    func encodedPayload() throws -> [UInt8] {
+        // TODO:
+        return []
     }
     
     struct Header {

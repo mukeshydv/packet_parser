@@ -7,8 +7,20 @@
 
 import Foundation
 
-struct DisconnectPacket {
+struct DisconnectPacket: MQTTPacketCodable {
     let header: Header
+    
+    let fixedHeader: MQTTPacketFixedHeader
+    
+    func encodedVariableHeader() throws -> [UInt8] {
+        // TODO:
+        return []
+    }
+    
+    func encodedPayload() throws -> [UInt8] {
+        // TODO:
+        return []
+    }
     
     struct Header {
         let reasonCode: ReasonCode = .success

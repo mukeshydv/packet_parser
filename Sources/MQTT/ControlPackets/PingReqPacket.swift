@@ -7,6 +7,16 @@
 
 import Foundation
 
-struct PingReqPacket {
+struct PingReqPacket: MQTTPacketCodable {
+    let fixedHeader: MQTTPacketFixedHeader
     
+    func encodedVariableHeader() throws -> [UInt8] {
+        // TODO:
+        return []
+    }
+    
+    func encodedPayload() throws -> [UInt8] {
+        // TODO:
+        return []
+    }
 }

@@ -7,9 +7,21 @@
 
 import Foundation
 
-struct SubackPacket {
+struct SubackPacket: MQTTPacketCodable {
     let header: Header
     let payload: [ReasonCode]
+    
+    let fixedHeader: MQTTPacketFixedHeader
+    
+    func encodedVariableHeader() throws -> [UInt8] {
+        // TODO:
+        return []
+    }
+    
+    func encodedPayload() throws -> [UInt8] {
+        // TODO:
+        return []
+    }
     
     struct Header {
         let identifier: UInt16
