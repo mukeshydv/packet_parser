@@ -14,7 +14,9 @@ enum ConnectPacketError: Error {
     case payloadError(String)
 }
 
-public struct ConnectPacket {
+public struct ConnectPacket: MQTTPacketCodable {
+    public let fixedHeader: MQTTPacketFixedHeader
+    
     let protocolName: String
     let flags: Flags
     let keepAlive: UInt16
@@ -28,6 +30,8 @@ public struct ConnectPacket {
         properties: Header = Header(),
         payload: Payload
         ) {
+        self.fixedHeader = MQTTPacketFixedHeader(packetType: .CONNECT, flags: 0)
+        
         self.protocolName = protocolName
         self.flags = flags
         self.keepAlive = keepAlive
@@ -43,6 +47,8 @@ public struct ConnectPacket {
         if decoder[0] != 0x10 {
             throw ConnectPacketError.invalidPacket("Packet fixed header")
         }
+        
+        self.fixedHeader = MQTTPacketFixedHeader(packetType: .CONNECT, flags: 0)
         
         let variableHeaderLength = try VariableByteInteger(from: decoder, startIndex: 1)
         if variableHeaderLength.value + 1 != decoder.count - variableHeaderLength.bytes.count {
@@ -106,19 +112,7 @@ public struct ConnectPacket {
         payload = try Payload(decoder: payloadBytes, headerFlags: self.flags)
     }
     
-    func encode() throws -> [UInt8] {
-        let variableHeaders = try encodeVariableHeader()
-        let encodedPayload = try payload.encode()
-        
-        let remainingLength = VariableByteInteger(UInt32(variableHeaders.count + encodedPayload.count))
-        
-        return [0x10] // Fixed Header
-            + remainingLength.bytes // Remaining length
-            + variableHeaders // Headers
-            + encodedPayload // Payload
-    }
-    
-    private func encodeVariableHeader() throws -> [UInt8] {
+    public func encodedVariableHeader() throws -> [UInt8] {
         let encodedProperties = try properties.encode()
         let propertyLength = VariableByteInteger(UInt32(encodedProperties.count))
         
@@ -132,6 +126,10 @@ public struct ConnectPacket {
         bytes.append(contentsOf: encodedProperties)
         
         return bytes
+    }
+    
+    public func encodedPayload() throws -> [UInt8] {
+        return try payload.encode()
     }
     
     public struct Flags {

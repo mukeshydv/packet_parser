@@ -15,7 +15,7 @@ public enum MQTTRequestMessage {
     var encoded: [UInt8] {
         switch self {
         case .connect(let packet):
-            return try! packet.encode()
+            return try! packet.encoded()
         }
     }
 }
