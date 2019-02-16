@@ -6,7 +6,8 @@ public func allTests() -> [XCTestCaseEntry] {
         testCase(MQTTTests.allTests),
         testCase(DataTypesTests.allTests),
         testCase(ConnectPacketTest.allTests),
-        testCase(ConnackPacketTest.allTests)
+        testCase(ConnackPacketTest.allTests),
+        testCase(PublishPacketTests.allTests)
     ]
 }
 #endif
