@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum ConnectPacketError: Error {
+enum PacketError: Error {
     case invalidPacket(String)
     case quality(String)
     case duplicateQuality(String)
@@ -41,18 +41,18 @@ public struct ConnectPacket: MQTTPacketCodable {
     
     init(decoder: [UInt8]) throws {
         if decoder.count == 0 {
-            throw ConnectPacketError.invalidPacket("Zero size packet")
+            throw PacketError.invalidPacket("Zero size packet")
         }
         
         if decoder[0] != 0x10 {
-            throw ConnectPacketError.invalidPacket("Packet fixed header")
+            throw PacketError.invalidPacket("Packet fixed header")
         }
         
         self.fixedHeader = MQTTPacketFixedHeader(packetType: .CONNECT, flags: 0)
         
         let variableHeaderLength = try VariableByteInteger(from: decoder, startIndex: 1)
         if variableHeaderLength.value + 1 != decoder.count - variableHeaderLength.bytes.count {
-            throw ConnectPacketError.invalidPacket("Packet variable header size invalid")
+            throw PacketError.invalidPacket("Packet variable header size invalid")
         }
         
         var currentIndex = variableHeaderLength.bytes.count + 1
@@ -62,24 +62,24 @@ public struct ConnectPacket: MQTTPacketCodable {
         currentIndex += Int(protocolName.length) + 2
         
         guard currentIndex < decoder.count else {
-            throw ConnectPacketError.invalidPacket("Protocol version not found")
+            throw PacketError.invalidPacket("Protocol version not found")
         }
         
         if decoder[currentIndex] != 0x05 {
-            throw ConnectPacketError.invalidPacket("invalid protocol version, only version 5 is supported")
+            throw PacketError.invalidPacket("invalid protocol version, only version 5 is supported")
         }
         
         currentIndex += 1
         
         guard currentIndex < decoder.count else {
-            throw ConnectPacketError.invalidPacket("packet flags not found")
+            throw PacketError.invalidPacket("packet flags not found")
         }
         
         let flags = decoder[currentIndex]
         self.flags = Flags(decoder: flags)
         
         guard currentIndex + 2 < decoder.count else {
-            throw ConnectPacketError.invalidPacket("keep alive not found")
+            throw PacketError.invalidPacket("keep alive not found")
         }
         
         keepAlive = UInt16(decoder[currentIndex+1], decoder[currentIndex+2])
@@ -87,7 +87,7 @@ public struct ConnectPacket: MQTTPacketCodable {
         currentIndex += 3
         
         guard currentIndex < decoder.count else {
-            throw ConnectPacketError.invalidPacket("properties not found")
+            throw PacketError.invalidPacket("properties not found")
         }
         
         let variablePropertiesLength = try VariableByteInteger(from: decoder, startIndex: currentIndex)
@@ -96,7 +96,7 @@ public struct ConnectPacket: MQTTPacketCodable {
         
         let propertyEndIndex = currentIndex + Int(variablePropertiesLength.value)
         guard propertyEndIndex <= decoder.count else {
-            throw ConnectPacketError.invalidPacket("Properties Length invalid")
+            throw PacketError.invalidPacket("Properties Length invalid")
         }
         
         let propertiesByte = decoder[currentIndex..<propertyEndIndex].map { $0 }
@@ -105,7 +105,7 @@ public struct ConnectPacket: MQTTPacketCodable {
         currentIndex = propertyEndIndex
         
         guard propertyEndIndex < decoder.count else {
-            throw ConnectPacketError.invalidPacket("payload not found")
+            throw PacketError.invalidPacket("payload not found")
         }
         
         let payloadBytes = decoder.dropFirst(currentIndex).map { $0 }
@@ -228,7 +228,7 @@ public struct ConnectPacket: MQTTPacketCodable {
             while currentIndex < decoder.count {
                 if let property = try FourByteProperty(MQTTPropertyIdentifier.sessionExpiryInterval, decoder, startIndex: currentIndex) {
                     if isDecoded[property.identifier] == true {
-                        throw ConnectPacketError.duplicateQuality("sessionExpiryInterval")
+                        throw PacketError.duplicateQuality("sessionExpiryInterval")
                     }
                     isDecoded[property.identifier] = true
                     
@@ -238,7 +238,7 @@ public struct ConnectPacket: MQTTPacketCodable {
                 
                 if let property = try TwoByteProperty(MQTTPropertyIdentifier.receiveMaximum, decoder, startIndex: currentIndex) {
                     if isDecoded[property.identifier] == true {
-                        throw ConnectPacketError.duplicateQuality("receiveMaximum")
+                        throw PacketError.duplicateQuality("receiveMaximum")
                     }
                     isDecoded[property.identifier] = true
                     
@@ -248,7 +248,7 @@ public struct ConnectPacket: MQTTPacketCodable {
                 
                 if let property = try FourByteProperty(MQTTPropertyIdentifier.maximumPacketSize, decoder, startIndex: currentIndex) {
                     if isDecoded[property.identifier] == true {
-                        throw ConnectPacketError.duplicateQuality("maximumPacketSize")
+                        throw PacketError.duplicateQuality("maximumPacketSize")
                     }
                     isDecoded[property.identifier] = true
                     
@@ -258,7 +258,7 @@ public struct ConnectPacket: MQTTPacketCodable {
                 
                 if let property = try TwoByteProperty(MQTTPropertyIdentifier.topicAliasMaximum, decoder, startIndex: currentIndex) {
                     if isDecoded[property.identifier] == true {
-                        throw ConnectPacketError.duplicateQuality("topicAliasMaximum")
+                        throw PacketError.duplicateQuality("topicAliasMaximum")
                     }
                     isDecoded[property.identifier] = true
                     
@@ -268,7 +268,7 @@ public struct ConnectPacket: MQTTPacketCodable {
                 
                 if let property = try ByteProperty(MQTTPropertyIdentifier.requestResponseInformation, decoder, startIndex: currentIndex) {
                     if isDecoded[property.identifier] == true {
-                        throw ConnectPacketError.duplicateQuality("requestResponseInformation")
+                        throw PacketError.duplicateQuality("requestResponseInformation")
                     }
                     isDecoded[property.identifier] = true
                     
@@ -278,7 +278,7 @@ public struct ConnectPacket: MQTTPacketCodable {
                 
                 if let property = try ByteProperty(MQTTPropertyIdentifier.requestProblemInformation, decoder, startIndex: currentIndex) {
                     if isDecoded[property.identifier] == true {
-                        throw ConnectPacketError.duplicateQuality("requestProblemInformation")
+                        throw PacketError.duplicateQuality("requestProblemInformation")
                     }
                     isDecoded[property.identifier] = true
                     
@@ -292,20 +292,20 @@ public struct ConnectPacket: MQTTPacketCodable {
                 }
                 
                 if let property = try StringProperty(MQTTPropertyIdentifier.authenticationMethod, decoder, startIndex: currentIndex) {
-                    if isDecoded[.authenticationMethod] == true {
-                        throw ConnectPacketError.duplicateQuality("authenticationMethod")
+                    if isDecoded[property.identifier] == true {
+                        throw PacketError.duplicateQuality("authenticationMethod")
                     }
-                    isDecoded[.authenticationMethod] = true
+                    isDecoded[property.identifier] = true
                     
                     authenticationMethod = property.value
                     currentIndex += property.propertyLength + 1
                 }
                 
                 if let property = try DataProperty(MQTTPropertyIdentifier.authenticationData, decoder, startIndex: currentIndex) {
-                    if isDecoded[.authenticationData] == true {
-                        throw ConnectPacketError.duplicateQuality("authenticationData")
+                    if isDecoded[property.identifier] == true {
+                        throw PacketError.duplicateQuality("authenticationData")
                     }
-                    isDecoded[.authenticationData] = true
+                    isDecoded[property.identifier] = true
                     
                     authenticationData = property.value
                     currentIndex += property.propertyLength + 1
@@ -410,7 +410,7 @@ public struct ConnectPacket: MQTTPacketCodable {
             
             if headerFlags.willFlag {
                 guard currentIndex < decoder.count else {
-                    throw ConnectPacketError.payloadError("no will properties")
+                    throw PacketError.payloadError("no will properties")
                 }
                 
                 let willBytes = decoder.dropFirst(currentIndex).map { $0 }
@@ -435,7 +435,7 @@ public struct ConnectPacket: MQTTPacketCodable {
             
             if headerFlags.username {
                 guard currentIndex < decoder.count else {
-                    throw ConnectPacketError.payloadError("no username in payload")
+                    throw PacketError.payloadError("no username in payload")
                 }
                 
                 let willUsernameUtf = try MQTTUTF8String(from: decoder, startIndex: UInt32(currentIndex))
@@ -446,7 +446,7 @@ public struct ConnectPacket: MQTTPacketCodable {
             
             if headerFlags.password {
                 guard currentIndex < decoder.count else {
-                    throw ConnectPacketError.payloadError("no password in payload")
+                    throw PacketError.payloadError("no password in payload")
                 }
                 
                 let willPasswordUtf = try MQTTData(from: decoder, startIndex: UInt32(currentIndex))
@@ -537,7 +537,7 @@ public struct ConnectPacket: MQTTPacketCodable {
                 
                 let lengthVariable = try VariableByteInteger(from: decoder)
                 guard decoder.count - lengthVariable.bytes.count >= lengthVariable.value else {
-                    throw ConnectPacketError.payloadError("Length do not match")
+                    throw PacketError.payloadError("Length do not match")
                 }
                 
                 self.length = lengthVariable.value + UInt32(lengthVariable.bytes.count)
@@ -549,7 +549,7 @@ public struct ConnectPacket: MQTTPacketCodable {
                     
                     if let property = try FourByteProperty(MQTTPropertyIdentifier.willDelayInterval, decoder, startIndex: currentIndex) {
                         if isDecoded[property.identifier] == true {
-                            throw ConnectPacketError.payloadError("willDelayInterval")
+                            throw PacketError.payloadError("willDelayInterval")
                         }
                         isDecoded[property.identifier] = true
                         
@@ -559,7 +559,7 @@ public struct ConnectPacket: MQTTPacketCodable {
                     
                     if let property = try ByteProperty(MQTTPropertyIdentifier.payloadFormatIndicator, decoder, startIndex: currentIndex) {
                         if isDecoded[property.identifier] == true {
-                            throw ConnectPacketError.payloadError("payloadFormatIndicator")
+                            throw PacketError.payloadError("payloadFormatIndicator")
                         }
                         isDecoded[property.identifier] = true
                         
@@ -569,7 +569,7 @@ public struct ConnectPacket: MQTTPacketCodable {
                     
                     if let property = try FourByteProperty(MQTTPropertyIdentifier.messageExpiryInterval, decoder, startIndex: currentIndex) {
                         if isDecoded[property.identifier] == true {
-                            throw ConnectPacketError.payloadError("messageExpiryInterval")
+                            throw PacketError.payloadError("messageExpiryInterval")
                         }
                         isDecoded[property.identifier] = true
                         
@@ -579,7 +579,7 @@ public struct ConnectPacket: MQTTPacketCodable {
                     
                     if let property = try StringProperty(MQTTPropertyIdentifier.contentType, decoder, startIndex: currentIndex) {
                         if isDecoded[property.identifier] == true {
-                            throw ConnectPacketError.payloadError("contentType")
+                            throw PacketError.payloadError("contentType")
                         }
                         isDecoded[property.identifier] = true
                         
@@ -589,7 +589,7 @@ public struct ConnectPacket: MQTTPacketCodable {
                     
                     if let property = try StringProperty(MQTTPropertyIdentifier.responseTopic, decoder, startIndex: currentIndex) {
                         if isDecoded[property.identifier] == true {
-                            throw ConnectPacketError.payloadError("responseTopic")
+                            throw PacketError.payloadError("responseTopic")
                         }
                         isDecoded[property.identifier] = true
                         
@@ -599,7 +599,7 @@ public struct ConnectPacket: MQTTPacketCodable {
                     
                     if let property = try DataProperty(MQTTPropertyIdentifier.correlationData, decoder, startIndex: currentIndex) {
                         if isDecoded[property.identifier] == true {
-                            throw ConnectPacketError.duplicateQuality("correlationData")
+                            throw PacketError.duplicateQuality("correlationData")
                         }
                         isDecoded[property.identifier] = true
                         
@@ -667,6 +667,5 @@ public struct ConnectPacket: MQTTPacketCodable {
                 return propertyLength.bytes + bytes
             }
         }
-
     }
 }
