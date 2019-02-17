@@ -24,7 +24,7 @@ struct PublishPacket: MQTTPacketCodable {
         self.header = header
         self.payload = payload
         
-        let flag = (dup ? 0x08 : 0x00) | (retain ? 0x01 : 00) | qos
+        let flag = (dup ? 0x08 : 0x00) | (retain ? 0x01 : 00) | (qos << 1)
         self.fixedHeader = MQTTPacketFixedHeader(packetType: .PUBLISH, flags: flag)
     }
     
@@ -65,13 +65,11 @@ struct PublishPacket: MQTTPacketCodable {
     }
     
     func encodedVariableHeader() throws -> [UInt8] {
-        // TODO:
-        return []
+        return try header.encode()
     }
     
     func encodedPayload() throws -> [UInt8] {
-        // TODO:
-        return []
+        return payload?.map { $0 } ?? []
     }
 }
 
@@ -79,11 +77,11 @@ extension PublishPacket {
     struct Header {
         let topicName: String
         let identifier: UInt16?
-        let properties: Property?
+        let properties: Property
         
         fileprivate var totalLength: Int = 0
         
-        init(topicName: String, identifier: UInt16? = nil, properties: Property? = nil) {
+        init(topicName: String, identifier: UInt16? = nil, properties: Property = Property()) {
             self.topicName = topicName
             self.identifier = identifier
             self.properties = properties
@@ -111,8 +109,23 @@ extension PublishPacket {
             properties = try Property(decoder: remainingBytes)
             
             self.identifier = identifier
-            self.properties = properties
+            self.properties = properties ?? Property()
             self.totalLength = currentIndex + (properties?.totalLength ?? 0)
+        }
+        
+        func encode() throws -> [UInt8] {
+            var bytes: [UInt8] = []
+            
+            let utf8String = try MQTTUTF8String(topicName)
+            bytes.append(contentsOf: utf8String.bytes)
+            
+            if let identifier = identifier {
+                bytes.append(contentsOf: identifier.bytes)
+            }
+            
+            bytes.append(contentsOf: try properties.encode())
+            
+            return bytes
         }
     }
 }
@@ -138,7 +151,7 @@ extension PublishPacket.Header {
             correlationData: Data? = nil,
             userProperty: [String: String]? = nil,
             subscriptionIdentifier: [UInt32]? = nil,
-            contentType: String?
+            contentType: String? = nil
             ) {
             self.payloadFormatIndicator = payloadFormatIndicator
             self.messageExpiryInterval = messageExpiryInterval
@@ -255,6 +268,67 @@ extension PublishPacket.Header {
             self.userProperty = userProperty
             self.subscriptionIdentifier = subscriptionIdentifier
             self.contentType = contentType
+        }
+        
+        func encode() throws -> [UInt8] {
+            var bytes: [UInt8] = []
+            
+            if let property = payloadFormatIndicator {
+                bytes.append(MQTTPropertyIdentifier.payloadFormatIndicator.rawValue)
+                bytes.append(property ? 0x01 : 0x00)
+            }
+            
+            if let property = messageExpiryInterval {
+                bytes.append(MQTTPropertyIdentifier.messageExpiryInterval.rawValue)
+                bytes.append(contentsOf: property.bytes)
+            }
+            
+            if let property = topicAlias {
+                bytes.append(MQTTPropertyIdentifier.topicAlias.rawValue)
+                bytes.append(contentsOf: property.bytes)
+            }
+            
+            if let property = responseTopic {
+                bytes.append(MQTTPropertyIdentifier.responseTopic.rawValue)
+                
+                let utf8String = try MQTTUTF8String(property)
+                bytes.append(contentsOf: utf8String.bytes)
+            }
+            
+            if let property = correlationData {
+                bytes.append(MQTTPropertyIdentifier.correlationData.rawValue)
+                
+                let data = try MQTTData(property)
+                bytes.append(contentsOf: data.bytes)
+            }
+            
+            if let userProperties = userProperty {
+                for property in userProperties {
+                    bytes.append(MQTTPropertyIdentifier.userProperty.rawValue)
+                    
+                    let keyValueUtf8 = try MQTTUTF8StringPair(property.key, property.value)
+                    bytes.append(contentsOf: keyValueUtf8.bytes)
+                }
+            }
+            
+            if let identidiers = subscriptionIdentifier {
+                for identifier in identidiers {
+                    bytes.append(MQTTPropertyIdentifier.subscriptionIdentifier.rawValue)
+                    
+                    let variableInteger = VariableByteInteger(identifier)
+                    bytes.append(contentsOf: variableInteger.bytes)
+                }
+            }
+            
+            if let property = contentType {
+                bytes.append(MQTTPropertyIdentifier.contentType.rawValue)
+                
+                let utf8String = try MQTTUTF8String(property)
+                bytes.append(contentsOf: utf8String.bytes)
+            }
+            
+            let propertyLength = VariableByteInteger(UInt32(bytes.count))
+            return propertyLength.bytes + bytes
         }
     }
 }
