@@ -21,15 +21,19 @@ struct PubackPacket: MQTTPacketCodable {
         // TODO:
         return []
     }
-    
+}
+
+extension PubackPacket {
     struct Header {
         let identifier: UInt16
         let reasonCode: ReasonCode = .success
         let properties: Property?
-        
-        struct Property {
-            let reasonString: String?
-            let userProperty: [String: String] = [:]
-        }
+    }
+}
+
+extension PubackPacket.Header {
+    struct Property {
+        let reasonString: String?
+        let userProperty: [String: String] = [:]
     }
 }

@@ -22,15 +22,12 @@ struct SubscribePacket: MQTTPacketCodable {
         // TODO:
         return []
     }
-    
+}
+
+extension SubscribePacket {
     struct Header {
         let identifier: UInt16
         let properties: Property?
-        
-        struct Property {
-            let subscriptionIdentifier: UInt32?
-            let userProperty: [String: String]
-        }
     }
     
     struct Payload {
@@ -42,5 +39,12 @@ struct SubscribePacket: MQTTPacketCodable {
             let retainAsPublished: Bool
             let retainHandling: UInt8
         }
+    }
+}
+
+extension SubscribePacket.Header {
+    struct Property {
+        let subscriptionIdentifier: UInt32?
+        let userProperty: [String: String]
     }
 }

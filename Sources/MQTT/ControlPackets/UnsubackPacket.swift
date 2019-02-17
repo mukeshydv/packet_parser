@@ -8,7 +8,7 @@
 import Foundation
 
 struct UnsubackPacket: MQTTPacketCodable {
-    let header: Header
+    let header: SubackPacket.Header
     let payload: [ReasonCode]
     
     let fixedHeader: MQTTPacketFixedHeader
@@ -21,15 +21,5 @@ struct UnsubackPacket: MQTTPacketCodable {
     func encodedPayload() throws -> [UInt8] {
         // TODO:
         return []
-    }
-    
-    struct Header {
-        let identifier: UInt16
-        let properties: Property?
-        
-        struct Property {
-            let reasonString: String?
-            let userProperty: [String: String] = [:]
-        }
     }
 }

@@ -22,13 +22,17 @@ struct UnsubscribePacket: MQTTPacketCodable {
         // TODO:
         return []
     }
-    
+}
+
+extension UnsubscribePacket {
     struct Header {
         let identifier: UInt16
         let properties: Property?
-        
-        struct Property {
-            let userProperty: [String: String] = [:]
-        }
+    }
+}
+
+extension UnsubscribePacket.Header {
+    struct Property {
+        let userProperty: [String: String] = [:]
     }
 }

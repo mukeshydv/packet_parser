@@ -22,14 +22,11 @@ struct SubackPacket: MQTTPacketCodable {
         // TODO:
         return []
     }
-    
+}
+
+extension SubackPacket {
     struct Header {
         let identifier: UInt16
-        let properties: Property?
-        
-        struct Property {
-            let reasonString: String?
-            let userProperty: [String: String] = [:]
-        }
+        let properties: PubackPacket.Header.Property?
     }
 }

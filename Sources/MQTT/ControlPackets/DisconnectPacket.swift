@@ -21,16 +21,20 @@ struct DisconnectPacket: MQTTPacketCodable {
         // TODO:
         return []
     }
-    
+}
+
+extension DisconnectPacket {
     struct Header {
         let reasonCode: ReasonCode = .success
         let properties: Property?
-        
-        struct Property {
-            let sessionExpiryInterval: UInt32?
-            let reasonString: String?
-            let userProperty: [String: String] = [:]
-            let serverReference: String?
-        }
+    }
+}
+
+extension DisconnectPacket.Header {
+    struct Property {
+        let sessionExpiryInterval: UInt32?
+        let reasonString: String?
+        let userProperty: [String: String] = [:]
+        let serverReference: String?
     }
 }

@@ -21,16 +21,20 @@ struct AuthPacket: MQTTPacketCodable {
         // TODO:
         return []
     }
-    
+}
+
+extension AuthPacket {
     struct Header {
         let authenticationReason: UInt8
         let properties: Property
-        
-        struct Property {
-            let authenticationMethod: String
-            let authenticationData: Data?
-            let reasonString: String?
-            let userProperty: [String: String]
-        }
+    }
+}
+
+extension AuthPacket.Header {
+    struct Property {
+        let authenticationMethod: String
+        let authenticationData: Data?
+        let reasonString: String?
+        let userProperty: [String: String]
     }
 }
