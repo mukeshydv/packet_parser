@@ -8,6 +8,7 @@ public func allTests() -> [XCTestCaseEntry] {
         testCase(ConnectPacketTest.allTests),
         testCase(ConnackPacketTest.allTests),
         testCase(PublishPacketTests.allTests),
+        testCase(PubackPacketTest.allTests),
         testCase(SubackPacketTest.allTests)
     ]
 }

@@ -12,13 +12,38 @@ struct PubackPacket: MQTTPacketCodable {
     
     let fixedHeader: MQTTPacketFixedHeader
     
+    init(header: Header) {
+        self.fixedHeader = MQTTPacketFixedHeader(packetType: .PUBACK, flags: 0)
+        self.header = header
+    }
+    
+    init?(decoder: [UInt8]) throws {
+        if decoder.count == 0 {
+            return nil
+        }
+        
+        fixedHeader = MQTTPacketFixedHeader(networkByte: decoder[0])
+        
+        if fixedHeader.packetType != .PUBACK {
+            return nil
+        }
+        
+        let variableHeaderLength = try VariableByteInteger(from: decoder, startIndex: 1)
+        if variableHeaderLength.value + 1 != decoder.count - variableHeaderLength.bytes.count {
+            throw PacketError.invalidPacket("Packet variable header size invalid")
+        }
+        
+        let currentIndex = variableHeaderLength.bytes.count + 1
+        let remainingBytes = decoder.dropFirst(currentIndex).array
+        
+        header = try Header(decoder: remainingBytes, hasProperties: variableHeaderLength.value > 3)
+    }
+    
     func encodedVariableHeader() throws -> [UInt8] {
-        // TODO:
-        return []
+        return try header.encode()
     }
     
     func encodedPayload() throws -> [UInt8] {
-        // TODO:
         return []
     }
 }
@@ -27,16 +52,47 @@ extension PubackPacket {
     struct Header {
         let identifier: UInt16
         let reasonCode: ReasonCode
-        let properties: Property?
+        let properties: Property
         
         init(
             identifier: UInt16,
             reasonCode: ReasonCode = .success,
-            properties: Property? = nil
+            properties: Property = .init()
             ) {
             self.identifier = identifier
             self.reasonCode = reasonCode
             self.properties = properties
+        }
+        
+        init(decoder: [UInt8], hasProperties: Bool) throws {
+            if decoder.count < 3 {
+                throw PacketError.invalidPacket("identifier not present")
+            }
+            
+            identifier = UInt16(decoder[0], decoder[1])
+            
+            if let reasonCode = ReasonCode(rawValue: decoder[2]) {
+                self.reasonCode = reasonCode
+            } else {
+                throw PacketError.invalidPacket("Invalid reason code")
+            }
+            
+            if hasProperties {
+                let remainingBytes = decoder.dropFirst(3).array
+                properties = try Property(decoder: remainingBytes)
+            } else {
+                properties = Property()
+            }
+        }
+        
+        func encode() throws -> [UInt8] {
+            var bytes: [UInt8] = []
+            
+            bytes.append(contentsOf: identifier.bytes)
+            bytes.append(reasonCode.rawValue)
+            bytes.append(contentsOf: try properties.encode())
+            
+            return bytes
         }
     }
 }
