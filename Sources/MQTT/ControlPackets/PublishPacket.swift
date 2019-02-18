@@ -49,13 +49,13 @@ struct PublishPacket: MQTTPacketCodable {
         }
         
         let currentIndex = variableHeaderLength.bytes.count + 1
-        let remainingBytes = decoder.dropFirst(currentIndex).map { $0 }
+        let remainingBytes = decoder.dropFirst(currentIndex).array
         
         var payload: Data?
         if let header = try Header(decoder: remainingBytes, qos: qos) {
             self.header = header
             
-            let payloadBytes = decoder.dropFirst(header.totalLength + currentIndex).map { $0 }
+            let payloadBytes = decoder.dropFirst(header.totalLength + currentIndex).array
             payload = Data(payloadBytes)
         } else {
             return nil
@@ -69,7 +69,7 @@ struct PublishPacket: MQTTPacketCodable {
     }
     
     func encodedPayload() throws -> [UInt8] {
-        return payload?.map { $0 } ?? []
+        return payload?.array ?? []
     }
 }
 
@@ -105,7 +105,7 @@ extension PublishPacket {
                 currentIndex += 2
             }
             
-            let remainingBytes = decoder.dropFirst(currentIndex).map { $0 }
+            let remainingBytes = decoder.dropFirst(currentIndex).array
             properties = try Property(decoder: remainingBytes)
             
             self.identifier = identifier

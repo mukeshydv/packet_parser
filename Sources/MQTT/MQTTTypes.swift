@@ -122,3 +122,9 @@ enum ReasonCode: UInt8 {
     case subscriptionIdentifierNotSupported = 0xA1
     case wildcardSubscriptionNotSupported = 0xA2
 }
+
+extension Sequence {
+    var array: [Element] {
+        return Array(self)
+    }
+}

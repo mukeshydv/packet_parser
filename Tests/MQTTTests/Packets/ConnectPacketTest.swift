@@ -31,7 +31,7 @@ class ConnectPacketTest: XCTestCase {
         XCTAssert(testDecodedPacket.payload.willProperties?.messageExpiryInterval == 4321)
         XCTAssert(testDecodedPacket.payload.willProperties?.contentType == "test")
         XCTAssert(testDecodedPacket.payload.willProperties?.responseTopic == "topic")
-        XCTAssert(testDecodedPacket.payload.willProperties?.correlationData!.map { $0 } == [1, 2, 3, 4])
+        XCTAssert(testDecodedPacket.payload.willProperties?.correlationData!.array == [1, 2, 3, 4])
         XCTAssert(testDecodedPacket.payload.willProperties?.userProperty == ["test": "test"])
         XCTAssert(testDecodedPacket.properties.sessionExpiryInterval == 1234)
         XCTAssert(testDecodedPacket.properties.receiveMaximum == 432)
@@ -41,7 +41,7 @@ class ConnectPacketTest: XCTestCase {
         XCTAssert(testDecodedPacket.properties.requestProblemInformation == true)
         XCTAssert(testDecodedPacket.properties.userProperty == ["test": "test"])
         XCTAssert(testDecodedPacket.properties.authenticationMethod == "test")
-        XCTAssert(testDecodedPacket.properties.authenticationData!.map { $0 } == [1, 2, 3, 4])
+        XCTAssert(testDecodedPacket.properties.authenticationData!.array == [1, 2, 3, 4])
     }
     
     func testEncoding() {

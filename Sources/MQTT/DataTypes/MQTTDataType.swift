@@ -47,7 +47,7 @@ extension Data {
 //            return []
 //        }
 //        
-//        return UInt16(count).bytes + self.map { $0 }
+//        return UInt16(count).bytes + self.array
 //    }
     
     init(_ bytes: [UInt8]) {

@@ -19,7 +19,7 @@ struct MQTTData {
         
         self.value = value
         self.length = UInt16(value.count)
-        self.bytes = length.bytes + value.map { $0 }
+        self.bytes = length.bytes + value.array
     }
     
     init(from decoder: [UInt8], startIndex: UInt32 = 0) throws {
@@ -37,7 +37,7 @@ struct MQTTData {
             throw MQTTDataTypeError.invalidBinaryData
         }
         
-        let bytes = decoder[startIndex..<endIndex].map { $0 }
+        let bytes = decoder[startIndex..<endIndex].array
         self.bytes = [decoder[startIndex-2], decoder[startIndex-1]] + bytes
         
         self.value = Data(bytes)

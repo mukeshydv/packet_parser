@@ -99,7 +99,7 @@ public struct ConnectPacket: MQTTPacketCodable {
             throw PacketError.invalidPacket("Properties Length invalid")
         }
         
-        let propertiesByte = decoder[currentIndex..<propertyEndIndex].map { $0 }
+        let propertiesByte = decoder[currentIndex..<propertyEndIndex].array
         properties = try Header(decoder: propertiesByte)
         
         currentIndex = propertyEndIndex
@@ -108,7 +108,7 @@ public struct ConnectPacket: MQTTPacketCodable {
             throw PacketError.invalidPacket("payload not found")
         }
         
-        let payloadBytes = decoder.dropFirst(currentIndex).map { $0 }
+        let payloadBytes = decoder.dropFirst(currentIndex).array
         payload = try Payload(decoder: payloadBytes, headerFlags: self.flags)
     }
     
@@ -413,7 +413,7 @@ public struct ConnectPacket: MQTTPacketCodable {
                     throw PacketError.payloadError("no will properties")
                 }
                 
-                let willBytes = decoder.dropFirst(currentIndex).map { $0 }
+                let willBytes = decoder.dropFirst(currentIndex).array
                 willProperties = try Properties(decoder: willBytes)
                 
                 currentIndex += Int(willProperties!.length)

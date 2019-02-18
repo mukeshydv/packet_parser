@@ -34,7 +34,7 @@ struct ConnackPacket: MQTTPacketCodable {
         }
         
         let currentIndex = variableHeaderLength.bytes.count + 1
-        let remainingBytes = decoder.dropFirst(currentIndex).map { $0 }
+        let remainingBytes = decoder.dropFirst(currentIndex).array
         
         if let header = try Header(decoder: remainingBytes) {
             self.header = header
@@ -81,7 +81,7 @@ extension ConnackPacket {
                 throw PacketError.invalidPacket("Wrong reason code")
             }
             
-            let remainingBytes = decoder.dropFirst(2).map { $0 }
+            let remainingBytes = decoder.dropFirst(2).array
             properties = try Property(decoder: remainingBytes)
         }
         

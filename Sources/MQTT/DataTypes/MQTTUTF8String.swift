@@ -25,7 +25,7 @@ struct MQTTUTF8String {
         
         self.value = value
         self.length = UInt16(utf8View.count)
-        self.bytes = length.bytes + utf8View.map { $0 }
+        self.bytes = length.bytes + utf8View.array
     }
     
     init(from decoder: [UInt8], startIndex: UInt32 = 0) throws {
@@ -43,7 +43,7 @@ struct MQTTUTF8String {
             throw MQTTDataTypeError.invalidUtf8String
         }
         
-        let bytes = decoder[startIndex..<endIndex].map { $0 }
+        let bytes = decoder[startIndex..<endIndex].array
         self.bytes = [decoder[startIndex-2], decoder[startIndex-1]] + bytes
         
         guard let value = String(bytes: bytes, encoding: .utf8) else {

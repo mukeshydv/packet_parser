@@ -56,7 +56,7 @@ struct VariableByteInteger {
             index += 1
         } while (encodedByte & 128) != 0
         
-        self.bytes = bytes[startIndex..<index].map { $0 }
+        self.bytes = bytes[startIndex..<index].array
         self.value = value
     }
     
