@@ -36,7 +36,7 @@ struct PubackPacket: MQTTPacketCodable {
         let currentIndex = variableHeaderLength.bytes.count + 1
         let remainingBytes = decoder.dropFirst(currentIndex).array
         
-        header = try Header(decoder: remainingBytes, hasProperties: variableHeaderLength.value > 3)
+        header = try Header(decoder: remainingBytes, remainingLength: variableHeaderLength.value)
     }
     
     func encodedVariableHeader() throws -> [UInt8] {
@@ -64,25 +64,40 @@ extension PubackPacket {
             self.properties = properties
         }
         
-        init(decoder: [UInt8], hasProperties: Bool) throws {
-            if decoder.count < 3 {
+        init(decoder: [UInt8], remainingLength: UInt32) throws {
+            if decoder.count < 2 {
                 throw PacketError.invalidPacket("identifier not present")
             }
             
             identifier = UInt16(decoder[0], decoder[1])
             
-            if let reasonCode = ReasonCode(rawValue: decoder[2]) {
-                self.reasonCode = reasonCode
+            var reasonCode: ReasonCode
+            var properties: Property
+            
+            if remainingLength < 3 {
+                reasonCode = .success
+                properties = Property()
             } else {
-                throw PacketError.invalidPacket("Invalid reason code")
+                if decoder.count < 3 {
+                    throw PacketError.invalidPacket("reasonCode not present")
+                }
+                
+                if let reasonCode1 = ReasonCode(rawValue: decoder[2]) {
+                    reasonCode = reasonCode1
+                } else {
+                    throw PacketError.invalidPacket("Invalid reason code")
+                }
+                
+                if remainingLength > 3 {
+                    let remainingBytes = decoder.dropFirst(3).array
+                    properties = try Property(decoder: remainingBytes)
+                } else {
+                    properties = Property()
+                }
             }
             
-            if hasProperties {
-                let remainingBytes = decoder.dropFirst(3).array
-                properties = try Property(decoder: remainingBytes)
-            } else {
-                properties = Property()
-            }
+            self.reasonCode = reasonCode
+            self.properties = properties
         }
         
         func encode() throws -> [UInt8] {
