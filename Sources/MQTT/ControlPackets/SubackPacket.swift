@@ -13,6 +13,12 @@ struct SubackPacket: MQTTPacketCodable {
     
     let fixedHeader: MQTTPacketFixedHeader
     
+    init(header: Header, payload: [ReasonCode]) {
+        self.fixedHeader = MQTTPacketFixedHeader(packetType: .SUBACK, flags: 0)
+        self.header = header
+        self.payload = payload
+    }
+    
     init?(decoder: [UInt8]) throws {
         if decoder.count == 0 {
             return nil
@@ -39,24 +45,24 @@ struct SubackPacket: MQTTPacketCodable {
     }
     
     func encodedVariableHeader() throws -> [UInt8] {
-        // TODO:
-        return []
+        return try header.encode()
     }
     
     func encodedPayload() throws -> [UInt8] {
-        // TODO:
-        return []
+        return payload.map { $0.rawValue }
     }
 }
 
 extension SubackPacket {
     struct Header {
+        typealias Property = PubackPacket.Header.Property
+        
         let identifier: UInt16
-        let properties: PubackPacket.Header.Property
+        let properties: Property
         
         fileprivate var totalLength = 0
         
-        init(identifier: UInt16, properties: PubackPacket.Header.Property = .init()) {
+        init(identifier: UInt16, properties: Property = .init()) {
             self.identifier = identifier
             self.properties = properties
         }
@@ -69,8 +75,17 @@ extension SubackPacket {
             identifier = UInt16(decoder[0], decoder[1])
             
             let remainingBytes = decoder.dropFirst(2).array
-            properties = try PubackPacket.Header.Property(decoder: remainingBytes)
+            properties = try Property(decoder: remainingBytes)
             totalLength = 2 + properties.totalLength
+        }
+        
+        func encode() throws -> [UInt8] {
+            var bytes: [UInt8] = []
+            
+            bytes.append(contentsOf: identifier.bytes)
+            bytes.append(contentsOf: try properties.encode())
+            
+            return bytes
         }
     }
 }

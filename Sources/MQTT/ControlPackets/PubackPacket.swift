@@ -88,5 +88,28 @@ extension PubackPacket.Header {
             self.reasonString = reasonString
             self.userProperty = userProperty.count > 0 ? userProperty : nil
         }
+        
+        func encode() throws -> [UInt8] {
+            var bytes: [UInt8] = []
+            
+            if let property = reasonString {
+                bytes.append(MQTTPropertyIdentifier.reasonString.rawValue)
+                
+                let utf8String = try MQTTUTF8String(property)
+                bytes.append(contentsOf: utf8String.bytes)
+            }
+            
+            if let userProperties = userProperty {
+                for property in userProperties {
+                    bytes.append(MQTTPropertyIdentifier.userProperty.rawValue)
+                    
+                    let keyValueUtf8 = try MQTTUTF8StringPair(property.key, property.value)
+                    bytes.append(contentsOf: keyValueUtf8.bytes)
+                }
+            }
+            
+            let propertyLength = VariableByteInteger(UInt32(bytes.count))
+            return propertyLength.bytes + bytes
+        }
     }
 }
