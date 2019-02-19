@@ -83,7 +83,7 @@ extension SubackPacket {
             var bytes: [UInt8] = []
             
             bytes.append(contentsOf: identifier.bytes)
-            bytes.append(contentsOf: try properties.encode())
+            bytes.append(contentsOf: try properties.encode(false))
             
             return bytes
         }

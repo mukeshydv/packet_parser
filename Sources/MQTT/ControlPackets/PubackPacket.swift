@@ -103,9 +103,15 @@ extension PubackPacket {
         func encode() throws -> [UInt8] {
             var bytes: [UInt8] = []
             
+            let encodedProperties = try properties.encode()
+            
+            if encodedProperties.count == 0 && reasonCode == .success {
+                return identifier.bytes
+            }
+            
             bytes.append(contentsOf: identifier.bytes)
             bytes.append(reasonCode.rawValue)
-            bytes.append(contentsOf: try properties.encode())
+            bytes.append(contentsOf: encodedProperties)
             
             return bytes
         }
@@ -160,7 +166,7 @@ extension PubackPacket.Header {
             self.userProperty = userProperty.count > 0 ? userProperty : nil
         }
         
-        func encode() throws -> [UInt8] {
+        func encode(_ truncatingZero: Bool = true) throws -> [UInt8] {
             var bytes: [UInt8] = []
             
             if let property = reasonString {
@@ -178,6 +184,8 @@ extension PubackPacket.Header {
                     bytes.append(contentsOf: keyValueUtf8.bytes)
                 }
             }
+            
+            if bytes.count == 0, truncatingZero { return [] }
             
             let propertyLength = VariableByteInteger(UInt32(bytes.count))
             return propertyLength.bytes + bytes

@@ -56,7 +56,7 @@ public struct ConnectPacket: MQTTPacketCodable {
         }
         
         var currentIndex = variableHeaderLength.bytes.count + 1
-        let protocolName = try MQTTUTF8String(from: decoder, startIndex: UInt32(currentIndex))
+        let protocolName = try MQTTUTF8String(from: decoder, startIndex: currentIndex)
         self.protocolName = protocolName.value
         
         currentIndex += Int(protocolName.length) + 2
@@ -419,7 +419,7 @@ public struct ConnectPacket: MQTTPacketCodable {
                 currentIndex += Int(willProperties!.length)
                 
                 if currentIndex < decoder.count {
-                    let willTopicUtf = try MQTTUTF8String(from: decoder, startIndex: UInt32(currentIndex))
+                    let willTopicUtf = try MQTTUTF8String(from: decoder, startIndex: currentIndex)
                     willTopic = willTopicUtf.value
                     
                     currentIndex += Int(willTopicUtf.length) + 2
@@ -438,7 +438,7 @@ public struct ConnectPacket: MQTTPacketCodable {
                     throw PacketError.payloadError("no username in payload")
                 }
                 
-                let willUsernameUtf = try MQTTUTF8String(from: decoder, startIndex: UInt32(currentIndex))
+                let willUsernameUtf = try MQTTUTF8String(from: decoder, startIndex: currentIndex)
                 username = willUsernameUtf.value
                 
                 currentIndex += Int(willUsernameUtf.length) + 2

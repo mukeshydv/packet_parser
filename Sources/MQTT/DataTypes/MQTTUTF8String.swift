@@ -28,7 +28,7 @@ struct MQTTUTF8String {
         self.bytes = length.bytes + utf8View.array
     }
     
-    init(from decoder: [UInt8], startIndex: UInt32 = 0) throws {
+    init(from decoder: [UInt8], startIndex: Int = 0) throws {
         let startIndex = Int(startIndex + 2)
         
         guard startIndex <= decoder.count else {
@@ -75,9 +75,9 @@ struct MQTTUTF8StringPair {
         self.bytes = keyUtf.bytes + valueUtf.bytes
     }
     
-    init(from bytes: [UInt8], startIndex: UInt32 = 0) throws {
+    init(from bytes: [UInt8], startIndex: Int = 0) throws {
         let keyUtf = try MQTTUTF8String(from: bytes, startIndex: startIndex)
-        let startIndex = startIndex + UInt32(keyUtf.length) + 2
+        let startIndex = startIndex + Int(keyUtf.length) + 2
         let valueUtf = try MQTTUTF8String(from: bytes, startIndex: startIndex)
         
         self.init(keyUtf, valueUtf)

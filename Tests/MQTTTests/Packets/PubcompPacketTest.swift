@@ -63,7 +63,7 @@ class PubcompPacketTest: XCTestCase {
         
         let encodedBytes = try! packet.encoded()
         let expectedBytes: [UInt8] = [
-            112, 4, 0, 42, 16, 0
+            112, 3, 0, 42, 16
         ]
         
         XCTAssert(encodedBytes == expectedBytes)
@@ -75,5 +75,5 @@ class PubcompPacketTest: XCTestCase {
         ("testDecoding", testDecoding),
         ("testDecodingEmpty", testDecodingEmpty),
         ("testDecodingSuccessEmpty", testDecodingSuccessEmpty),
-        ]
+    ]
 }

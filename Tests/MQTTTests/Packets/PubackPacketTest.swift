@@ -52,7 +52,7 @@ class PubackPacketTest: XCTestCase {
         
         let encodedBytes = try! packet.encoded()
         let expectedBytes: [UInt8] = [
-            64, 4, 0, 42, 16, 0
+            64, 3, 0, 42, 16
         ]
         
         XCTAssert(encodedBytes == expectedBytes)

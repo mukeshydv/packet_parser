@@ -19,7 +19,7 @@ struct StringProperty {
             return nil
         }
         
-        let startIndex = UInt32(startIndex + 1)
+        let startIndex = startIndex + 1
         let utf8Pair = try MQTTUTF8String(from: decoder, startIndex: startIndex)
         value = utf8Pair.value
         
