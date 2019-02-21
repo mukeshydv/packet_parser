@@ -60,7 +60,7 @@ extension SubackPacket {
         let identifier: UInt16
         let properties: Property
         
-        fileprivate var totalLength = 0
+        fileprivate(set) var totalLength = 0
         
         init(identifier: UInt16, properties: Property = .init()) {
             self.identifier = identifier

@@ -14,7 +14,8 @@ public func allTests() -> [XCTestCaseEntry] {
         testCase(PubcompPacketTest.allTests),
         testCase(SubscribePacketTest.allTests),
         testCase(SubackPacketTest.allTests),
-        testCase(UnsubscribePacketTest.allTests)
+        testCase(UnsubscribePacketTest.allTests),
+        testCase(UnsubackPacketTest.allTests)
     ]
 }
 #endif
