@@ -14,7 +14,7 @@ class AuthPacketTest: XCTestCase {
             240, 36, 0, 34, 21, 0, 4, 116, 101, 115, 116, 22, 0, 4, 0, 1, 2, 3, 31, 0, 4, 116, 101, 115, 116, 38, 0, 4, 116, 101, 115, 116, 0, 4, 116, 101, 115, 116
         ]
         
-        let testDecodedPacket = try! AuthPacket(decoder: bytes)!
+        let testDecodedPacket = try! AuthPacket(decoder: bytes)
         
         XCTAssert(testDecodedPacket.header.reasonCode == .success)
         XCTAssert(testDecodedPacket.header.properties.authenticationMethod == "test")
@@ -28,7 +28,7 @@ class AuthPacketTest: XCTestCase {
             240, 2, 0, 0
         ]
         
-        let testDecodedPacket = try! AuthPacket(decoder: bytes)!
+        let testDecodedPacket = try! AuthPacket(decoder: bytes)
         
         XCTAssert(testDecodedPacket.header.reasonCode == .success)
         XCTAssert(testDecodedPacket.header.properties.authenticationData == nil)

@@ -14,7 +14,7 @@ class UnsubscribePacketTest: XCTestCase {
             162, 31, 0, 42, 13, 38, 0, 4, 116, 101, 115, 116, 0, 4, 116, 101, 115, 116, 0, 4, 116, 101, 115, 116, 0, 7, 97, 47, 116, 111, 112, 105, 99
         ]
         
-        let testDecodedPacket = try! UnsubscribePacket(decoder: bytes)!
+        let testDecodedPacket = try! UnsubscribePacket(decoder: bytes)
         
         XCTAssert(testDecodedPacket.header.identifier == 42)
         XCTAssert(testDecodedPacket.header.properties.userProperty == ["test": "test"])
@@ -26,7 +26,7 @@ class UnsubscribePacketTest: XCTestCase {
             162, 18, 0, 42, 0, 0, 4, 116, 101, 115, 116, 0, 7, 97, 47, 116, 111, 112, 105, 99
         ]
         
-        let testDecodedPacket = try! UnsubscribePacket(decoder: bytes)!
+        let testDecodedPacket = try! UnsubscribePacket(decoder: bytes)
         
         XCTAssert(testDecodedPacket.header.identifier == 42)
         XCTAssert(testDecodedPacket.header.properties.userProperty == nil)

@@ -14,7 +14,7 @@ class DisconnectPacketTest: XCTestCase {
             224, 34, 0, 32, 17, 0, 0, 0, 145, 31, 0, 4, 116, 101, 115, 116, 38, 0, 4, 116, 101, 115, 116, 0, 4, 116, 101, 115, 116, 28, 0, 4, 116, 101, 115, 116
         ]
         
-        let testDecodedPacket = try! DisconnectPacket(decoder: bytes)!
+        let testDecodedPacket = try! DisconnectPacket(decoder: bytes)
         
         XCTAssert(testDecodedPacket.header.reasonCode == .success)
         XCTAssert(testDecodedPacket.header.properties.sessionExpiryInterval == 145)
@@ -28,7 +28,7 @@ class DisconnectPacketTest: XCTestCase {
             224, 2, 0, 0
         ]
         
-        let testDecodedPacket = try! DisconnectPacket(decoder: bytes)!
+        let testDecodedPacket = try! DisconnectPacket(decoder: bytes)
         
         XCTAssert(testDecodedPacket.header.reasonCode == .success)
         XCTAssert(testDecodedPacket.header.properties.sessionExpiryInterval == nil)

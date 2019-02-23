@@ -14,7 +14,7 @@ class ConnackPacketTest: XCTestCase {
             32, 87, 1, 0, 84, 17, 0, 0, 4, 210, 33, 1, 176, 36, 2, 37, 1, 39, 0, 0, 0, 100, 18, 0, 4, 116, 101, 115, 116, 34, 1, 200, 31, 0, 4, 116, 101, 115, 116, 38, 0, 4, 116, 101, 115, 116, 0, 4, 116, 101, 115, 116, 40, 1, 41, 1, 42, 0, 19, 4, 210, 26, 0, 4, 116, 101, 115, 116, 28, 0, 4, 116, 101, 115, 116, 21, 0, 4, 116, 101, 115, 116, 22, 0, 4, 1, 2, 3, 4
         ]
         
-        let testDecodedPacket = try! ConnackPacket(decoder: bytes)!
+        let testDecodedPacket = try! ConnackPacket(decoder: bytes)
         
         XCTAssert(testDecodedPacket.header.flags.sessionPresent == true)
         XCTAssert(testDecodedPacket.header.reasonCode == .success)

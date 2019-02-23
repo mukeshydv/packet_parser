@@ -28,15 +28,15 @@ struct PublishPacket: MQTTPacketCodable {
         self.fixedHeader = MQTTPacketFixedHeader(packetType: .PUBLISH, flags: flag)
     }
     
-    init?(decoder: [UInt8]) throws {
+    init(decoder: [UInt8]) throws {
         if decoder.count == 0 {
-            return nil
+            throw PacketError.invalidPacket("Packet identifier invalid")
         }
         
-        fixedHeader = MQTTPacketFixedHeader(networkByte: decoder[0])
+        fixedHeader = try MQTTPacketFixedHeader(networkByte: decoder[0])
         
         if fixedHeader.packetType != .PUBLISH {
-            return nil
+            throw PacketError.invalidPacket("Packet identifier invalid")
         }
         
         dup = fixedHeader.flags & 0x08 == 1
@@ -51,17 +51,10 @@ struct PublishPacket: MQTTPacketCodable {
         let currentIndex = variableHeaderLength.bytes.count + 1
         let remainingBytes = decoder.dropFirst(currentIndex).array
         
-        var payload: Data?
-        if let header = try Header(decoder: remainingBytes, qos: qos) {
-            self.header = header
-            
-            let payloadBytes = decoder.dropFirst(header.totalLength + currentIndex).array
-            payload = Data(payloadBytes)
-        } else {
-            return nil
-        }
+        header = try Header(decoder: remainingBytes, qos: qos)
         
-        self.payload = payload
+        let payloadBytes = decoder.dropFirst(header.totalLength + currentIndex).array
+        payload = Data(payloadBytes)
     }
     
     func encodedVariableHeader() throws -> [UInt8] {
@@ -87,7 +80,7 @@ extension PublishPacket {
             self.properties = properties
         }
         
-        init?(decoder: [UInt8], qos: UInt8) throws {
+        init(decoder: [UInt8], qos: UInt8) throws {
             if decoder.count == 0 {
                 throw PacketError.invalidPacket("topic name not found")
             }

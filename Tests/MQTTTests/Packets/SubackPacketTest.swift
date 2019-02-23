@@ -14,7 +14,7 @@ class SubackPacketTest: XCTestCase {
             144, 27, 0, 42, 20, 31, 0, 4, 116, 101, 115, 116, 38, 0, 4, 116, 101, 115, 116, 0, 4, 116, 101, 115, 116, 0, 1, 2, 128
         ]
         
-        let testDecodedPacket = try! SubackPacket(decoder: bytes)!
+        let testDecodedPacket = try! SubackPacket(decoder: bytes)
         
         XCTAssert(testDecodedPacket.header.identifier == 42)
         XCTAssert(testDecodedPacket.header.properties.reasonString == "test")
@@ -27,7 +27,7 @@ class SubackPacketTest: XCTestCase {
             144, 4, 0, 42, 0, 0
         ]
         
-        let testDecodedPacket = try! SubackPacket(decoder: bytes)!
+        let testDecodedPacket = try! SubackPacket(decoder: bytes)
         
         XCTAssert(testDecodedPacket.header.identifier == 42)
         XCTAssert(testDecodedPacket.payload == [.success])

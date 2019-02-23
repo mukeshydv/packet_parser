@@ -17,13 +17,13 @@ struct ConnackPacket: MQTTPacketCodable {
         self.header = header
     }
     
-    init?(decoder: [UInt8]) throws {
+    init(decoder: [UInt8]) throws {
         if decoder.count == 0 {
-            return nil
+            throw PacketError.invalidPacket("Packet identifier invalid")
         }
         
         if decoder[0] != 0x20 {
-            return nil
+            throw PacketError.invalidPacket("Packet identifier invalid")
         }
         
         self.fixedHeader = MQTTPacketFixedHeader(packetType: .CONNACK, flags: 0)
@@ -36,11 +36,7 @@ struct ConnackPacket: MQTTPacketCodable {
         let currentIndex = variableHeaderLength.bytes.count + 1
         let remainingBytes = decoder.dropFirst(currentIndex).array
         
-        if let header = try Header(decoder: remainingBytes) {
-            self.header = header
-        } else {
-            return nil
-        }
+        header = try Header(decoder: remainingBytes)
     }
     
     func encodedVariableHeader() throws -> [UInt8] {
@@ -64,7 +60,7 @@ extension ConnackPacket {
             self.properties = properties
         }
         
-        init?(decoder: [UInt8]) throws {
+        init(decoder: [UInt8]) throws {
             
             if decoder.count < 2 {
                 throw PacketError.invalidPacket("Packet size too small")

@@ -14,7 +14,7 @@ class PublishPacketTests: XCTestCase {
             52, 60, 0, 4, 116, 101, 115, 116, 0, 42, 47, 1, 1, 2, 0, 0, 16, 225, 35, 0, 100, 8, 0, 5, 116, 111, 112, 105, 99, 9, 0, 4, 1, 2, 3, 4, 38, 0, 4, 116, 101, 115, 116, 0, 4, 116, 101, 115, 116, 11, 120, 3, 0, 4, 116, 101, 115, 116, 116, 101, 115, 116
         ]
         
-        let testDecodedPacket = try! PublishPacket(decoder: bytes)!
+        let testDecodedPacket = try! PublishPacket(decoder: bytes)
         
         XCTAssert(testDecodedPacket.qos == 2)
         XCTAssert(testDecodedPacket.dup == false)
@@ -37,7 +37,7 @@ class PublishPacketTests: XCTestCase {
             48, 7, 0, 4, 116, 101, 115, 116, 0
         ]
         
-        let testDecodedPacket = try! PublishPacket(decoder: bytes)!
+        let testDecodedPacket = try! PublishPacket(decoder: bytes)
         
         XCTAssert(testDecodedPacket.dup == false)
         XCTAssert(testDecodedPacket.retain == false)

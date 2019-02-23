@@ -20,15 +20,15 @@ struct SubscribePacket: MQTTPacketCodable {
         self.payload = payload
     }
     
-    init?(decoder: [UInt8]) throws {
+    init(decoder: [UInt8]) throws {
         if decoder.count == 0 {
-            return nil
+            throw PacketError.invalidPacket("Packet identifier invalid")
         }
         
-        fixedHeader = MQTTPacketFixedHeader(networkByte: decoder[0])
+        fixedHeader = try MQTTPacketFixedHeader(networkByte: decoder[0])
         
         if fixedHeader.packetType != .SUBSCRIBE {
-            return nil
+            throw PacketError.invalidPacket("Packet identifier invalid")
         }
         
         let variableHeaderLength = try VariableByteInteger(from: decoder, startIndex: 1)

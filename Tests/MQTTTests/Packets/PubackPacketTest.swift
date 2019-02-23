@@ -14,7 +14,7 @@ class PubackPacketTest: XCTestCase {
             64, 24, 0, 42, 16, 20, 31, 0, 4, 116, 101, 115, 116, 38, 0, 4, 116, 101, 115, 116, 0, 4, 116, 101, 115, 116
         ]
         
-        let testDecodedPacket = try! PubackPacket(decoder: bytes)!
+        let testDecodedPacket = try! PubackPacket(decoder: bytes)
         
         XCTAssert(testDecodedPacket.header.identifier == 42)
         XCTAssert(testDecodedPacket.header.reasonCode == .noMatchingSubscribers)
@@ -27,7 +27,7 @@ class PubackPacketTest: XCTestCase {
             64, 3, 0, 42, 16
         ]
         
-        let testDecodedPacket = try! PubackPacket(decoder: bytes)!
+        let testDecodedPacket = try! PubackPacket(decoder: bytes)
         
         XCTAssert(testDecodedPacket.header.identifier == 42)
         XCTAssert(testDecodedPacket.header.reasonCode == .noMatchingSubscribers)

@@ -39,7 +39,7 @@ public struct ConnectPacket: MQTTPacketCodable {
         self.payload = payload
     }
     
-    init(decoder: [UInt8]) throws {
+    public init(decoder: [UInt8]) throws {
         if decoder.count == 0 {
             throw PacketError.invalidPacket("Zero size packet")
         }

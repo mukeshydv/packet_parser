@@ -14,7 +14,7 @@ class SubscribePacketTest: XCTestCase {
             130, 26, 0, 42, 16, 11, 145, 1, 38, 0, 4, 116, 101, 115, 116, 0, 4, 116, 101, 115, 116, 0, 4, 116, 101, 115, 116, 24
         ]
         
-        let testDecodedPacket = try! SubscribePacket(decoder: bytes)!
+        let testDecodedPacket = try! SubscribePacket(decoder: bytes)
         
         XCTAssert(testDecodedPacket.header.identifier == 42)
         XCTAssert(testDecodedPacket.header.properties.subscriptionIdentifier == 145)
@@ -31,7 +31,7 @@ class SubscribePacketTest: XCTestCase {
             130, 10, 0, 42, 0, 0, 4, 116, 101, 115, 116, 24
         ]
         
-        let testDecodedPacket = try! SubscribePacket(decoder: bytes)!
+        let testDecodedPacket = try! SubscribePacket(decoder: bytes)
         
         XCTAssert(testDecodedPacket.header.identifier == 42)
         XCTAssert(testDecodedPacket.header.properties.subscriptionIdentifier == nil)

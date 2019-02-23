@@ -7,8 +7,6 @@
 
 import Foundation
 
-
-
 public enum MQTTRequestMessage {
     case connect(ConnectPacket)
     
@@ -54,14 +52,10 @@ public enum MQTTResponseMessage {
 enum MQTTControlPacketType: UInt8 {
     case reserved = 0x0 // Forbidden
     
-    
-    // packet fixed header: 0001 0000
-    // variable header: protocol name, protocol level, connect flags, keep alive and properties
-    // 
-    case CONNECT = 0x1 // Connection request (Client to server)
-    case CONNACK = 0x2 // Connect acknowledgment (Server to client)
-    case PUBLISH = 0x3 // Publish message (bidirectional)
-    case PUBACK = 0x4 // Publish acknowledgment (bidirectional)
+    case CONNECT = 0x1
+    case CONNACK = 0x2
+    case PUBLISH = 0x3
+    case PUBACK = 0x4
     case PUBREC = 0x5
     case PUBREL = 0x6
     case PUBCOMP = 0x7

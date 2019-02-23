@@ -14,15 +14,15 @@ struct PingReqPacket: MQTTPacketCodable {
         fixedHeader = MQTTPacketFixedHeader(packetType: .PINGREQ, flags: 0)
     }
     
-    init?(decoder: [UInt8]) throws {
+    init(decoder: [UInt8]) throws {
         if decoder.count == 0 {
-            return nil
+            throw PacketError.invalidPacket("Packet identifier invalid")
         }
         
-        fixedHeader = MQTTPacketFixedHeader(networkByte: decoder[0])
+        fixedHeader = try MQTTPacketFixedHeader(networkByte: decoder[0])
         
         if fixedHeader.packetType != .PINGREQ {
-            return nil
+            throw PacketError.invalidPacket("Packet identifier invalid")
         }
         
         let variableHeaderLength = try VariableByteInteger(from: decoder, startIndex: 1)

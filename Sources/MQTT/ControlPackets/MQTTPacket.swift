@@ -16,8 +16,11 @@ public struct MQTTPacketFixedHeader {
         self.flags = flags
     }
     
-    init(networkByte: UInt8) {
-        packetType = MQTTControlPacketType(rawValue: networkByte >> 4)!
+    init(networkByte: UInt8) throws {
+        guard let packetType = MQTTControlPacketType(rawValue: networkByte >> 4) else {
+            throw PacketError.invalidPacket("Invalid packet identifier")
+        }
+        self.packetType = packetType
         flags = networkByte & 0x0F
     }
     
@@ -45,5 +48,5 @@ extension MQTTPacketEncodable {
 }
 
 public protocol MQTTPacketDecodable {
-    
+    init(decoder: [UInt8]) throws
 }

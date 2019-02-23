@@ -14,7 +14,7 @@ class UnsubackPacketTest: XCTestCase {
             176, 25, 0, 42, 20, 31, 0, 4, 116, 101, 115, 116, 38, 0, 4, 116, 101, 115, 116, 0, 4, 116, 101, 115, 116, 0, 128
         ]
         
-        let testDecodedPacket = try! UnsubackPacket(decoder: bytes)!
+        let testDecodedPacket = try! UnsubackPacket(decoder: bytes)
         
         XCTAssert(testDecodedPacket.header.identifier == 42)
         XCTAssert(testDecodedPacket.header.properties.reasonString == "test")
@@ -27,7 +27,7 @@ class UnsubackPacketTest: XCTestCase {
             176, 5, 0, 42, 0, 0, 128
         ]
         
-        let testDecodedPacket = try! UnsubackPacket(decoder: bytes)!
+        let testDecodedPacket = try! UnsubackPacket(decoder: bytes)
         
         XCTAssert(testDecodedPacket.header.identifier == 42)
         XCTAssert(testDecodedPacket.header.properties.reasonString == nil)
