@@ -64,9 +64,8 @@ class ConnectPacketTest: XCTestCase {
         let payload = ConnectPacket.Payload(clientId: "", willProperties: willProperties, willTopic: "topic",
                                             willPayload: Data([1, 2]), username: "test", password: Data([4,5]))
         let connectPacket = ConnectPacket(flags: flags, keepAlive: 0x000A, properties: properties, payload: payload)
-        let request = MQTTRequestMessage.connect(connectPacket)
         
-        let encoded = request.encoded
+        let encoded = try! connectPacket.encoded()
         
         let decodedPacket = try! ConnectPacket(decoder: encoded)
         XCTAssert(decodedPacket.flags.cleanStart == connectPacket.flags.cleanStart, "Decoding failed")
