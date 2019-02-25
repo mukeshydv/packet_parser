@@ -19,11 +19,7 @@ private final class MQTTHandler: ChannelInboundHandler {
     
     func channelRead(ctx: ChannelHandlerContext, data: NIOAny) {
         let request = unwrapInboundIn(data)
-        
-//        switch request {
-//        case .connect:
-//            ctx.writeAndFlush(wrapOutboundOut(.connectAck), promise: nil)
-//        }
+        print(request)
     }
 }
 

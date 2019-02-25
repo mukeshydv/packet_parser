@@ -378,7 +378,7 @@ public struct ConnectPacket: MQTTPacketCodable {
         let username: String?
         let password: Data?
         
-        init(
+        public init(
             clientId: String,
             willProperties: Properties? = nil,
             willTopic: String? = nil,

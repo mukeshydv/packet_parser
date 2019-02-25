@@ -46,7 +46,9 @@ class MQTTClient {
             .then { (channel) -> EventLoopFuture<Void> in
                 print("Client connected to server: \(channel.remoteAddress!).")
                 self.channel = channel
-                return channel.writeAndFlush(NIOAny(MQTTPacket.connect))
+                let payload = ConnectPacket.Payload(clientId: "test")
+                let connect = ConnectPacket(payload: payload)
+                return channel.writeAndFlush(NIOAny(MQTTPacket.connect(connect)))
             }
     }
     

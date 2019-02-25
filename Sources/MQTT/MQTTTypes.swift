@@ -118,6 +118,45 @@ public enum MQTTPacket {
     case subscribe(SubscribePacket)
     case unsuback(UnsubackPacket)
     case unsubscribe(UnsubscribePacket)
+    
+    func encode() throws -> [UInt8] {
+        return try packet.encoded()
+    }
+    
+    var packet: MQTTPacketCodable {
+        switch self {
+        case .connect(let packet):
+            return packet
+        case .auth(let packet):
+            return packet
+        case .connack(let packet):
+            return packet
+        case .disconnect(let packet):
+            return packet
+        case .pingReq(let packet):
+            return packet
+        case .pingResp(let packet):
+            return packet
+        case .puback(let packet):
+            return packet
+        case .pubcomp(let packet):
+            return packet
+        case .publish(let packet):
+            return packet
+        case .pubrec(let packet):
+            return packet
+        case .pubrel(let packet):
+            return packet
+        case .suback(let packet):
+            return packet
+        case .subscribe(let packet):
+            return packet
+        case .unsuback(let packet):
+            return packet
+        case .unsubscribe(let packet):
+            return packet
+        }
+    }
 }
 
 extension Sequence {
