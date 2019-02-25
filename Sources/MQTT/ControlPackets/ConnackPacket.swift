@@ -7,17 +7,17 @@
 
 import Foundation
 
-struct ConnackPacket: MQTTPacketCodable {
-    let fixedHeader: MQTTPacketFixedHeader
+public struct ConnackPacket: MQTTPacketCodable {
+    public let fixedHeader: MQTTPacketFixedHeader
     
     let header: Header // Variable header
     
-    init(header: Header) {
+    public init(header: Header) {
         self.fixedHeader = MQTTPacketFixedHeader(packetType: .CONNACK, flags: 0)
         self.header = header
     }
     
-    init(decoder: [UInt8]) throws {
+    public init(decoder: [UInt8]) throws {
         if decoder.count == 0 {
             throw PacketError.invalidPacket("Packet identifier invalid")
         }
@@ -39,28 +39,28 @@ struct ConnackPacket: MQTTPacketCodable {
         header = try Header(decoder: remainingBytes)
     }
     
-    func encodedVariableHeader() throws -> [UInt8] {
+    public func encodedVariableHeader() throws -> [UInt8] {
         return try header.encode()
     }
     
-    func encodedPayload() throws -> [UInt8] {
+    public func encodedPayload() throws -> [UInt8] {
         return []
     }
 }
 
 extension ConnackPacket {
-    struct Header {
+    public struct Header {
         let flags: Flags // first byte
         let reasonCode: ReasonCode // Status code
         let properties: Property? // properties
         
-        init(sessionPresent: Bool, reasonCode: ReasonCode, properties: Property? = nil) {
+        public init(sessionPresent: Bool, reasonCode: ReasonCode, properties: Property? = nil) {
             self.flags = Flags(sessionPresent: sessionPresent)
             self.reasonCode = reasonCode
             self.properties = properties
         }
         
-        init(decoder: [UInt8]) throws {
+        public init(decoder: [UInt8]) throws {
             
             if decoder.count < 2 {
                 throw PacketError.invalidPacket("Packet size too small")
@@ -102,7 +102,7 @@ extension ConnackPacket.Header {
         let sessionPresent: Bool // 0th bit, rest bits must be set to 0, (v5)
     }
     
-    struct Property {
+    public struct Property {
         let sessionExpiryInterval: UInt32?
         let receiveMaximum: UInt16
         let maximumQoS: UInt8
@@ -121,7 +121,7 @@ extension ConnackPacket.Header {
         let authenticationMethod: String?
         let authenticationData: Data?
         
-        init(
+        public init(
                 sessionExpiryInterval: UInt32? = nil,
                 receiveMaximum: UInt16 = .max,
                 maximumQoS: UInt8 = 2,
@@ -159,7 +159,7 @@ extension ConnackPacket.Header {
             self.authenticationData = authenticationData
         }
         
-        init(decoder: [UInt8]) throws {
+        public init(decoder: [UInt8]) throws {
             var sessionExpiryInterval: UInt32?
             var receiveMaximum: UInt16 = .max
             var maximumQoS: UInt8 = 2

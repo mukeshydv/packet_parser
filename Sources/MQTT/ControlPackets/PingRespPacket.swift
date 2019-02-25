@@ -7,14 +7,14 @@
 
 import Foundation
 
-struct PingRespPacket: MQTTPacketCodable {
-    let fixedHeader: MQTTPacketFixedHeader
+public struct PingRespPacket: MQTTPacketCodable {
+    public let fixedHeader: MQTTPacketFixedHeader
     
-    init() {
+    public init() {
         fixedHeader = MQTTPacketFixedHeader(packetType: .PINGRESP, flags: 0)
     }
     
-    init(decoder: [UInt8]) throws {
+    public init(decoder: [UInt8]) throws {
         if decoder.count == 0 {
             throw PacketError.invalidPacket("Packet identifier invalid")
         }
@@ -31,11 +31,11 @@ struct PingRespPacket: MQTTPacketCodable {
         }
     }
     
-    func encodedVariableHeader() throws -> [UInt8] {
+    public func encodedVariableHeader() throws -> [UInt8] {
         return []
     }
     
-    func encodedPayload() throws -> [UInt8] {
+    public func encodedPayload() throws -> [UInt8] {
         return []
     }
 }

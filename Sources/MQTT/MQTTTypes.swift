@@ -7,21 +7,6 @@
 
 import Foundation
 
-public enum MQTTRequestMessage {
-    case connect(ConnectPacket)
-    
-    var encoded: [UInt8] {
-        switch self {
-        case .connect(let packet):
-            return try! packet.encoded()
-        }
-    }
-}
-
-public enum MQTTResponseMessage {
-    case connectAck
-}
-
 // Packet format
 // Fixed Header
 //              -------------------------------------------
@@ -49,7 +34,7 @@ public enum MQTTResponseMessage {
 /// - PINGRESP: PING response (Server to client)
 /// - DISCONNECT: Disconnect notification (bidirectional)
 /// - AUTH: Authentication exchange (bidirectional)
-enum MQTTControlPacketType: UInt8 {
+public enum MQTTControlPacketType: UInt8 {
     case reserved = 0x0 // Forbidden
     
     case CONNECT = 0x1
@@ -69,7 +54,7 @@ enum MQTTControlPacketType: UInt8 {
     case AUTH = 0xF
 }
 
-enum ReasonCode: UInt8 {
+public enum ReasonCode: UInt8 {
     case success = 0x00
 //    case normalDisconnection
 //    case grantQoS0
@@ -115,6 +100,24 @@ enum ReasonCode: UInt8 {
     case maximumConnectTime = 0xA0
     case subscriptionIdentifierNotSupported = 0xA1
     case wildcardSubscriptionNotSupported = 0xA2
+}
+
+public enum MQTTPacket {
+    case connect(ConnectPacket)
+    case auth(AuthPacket)
+    case connack(ConnackPacket)
+    case disconnect(DisconnectPacket)
+    case pingReq(PingReqPacket)
+    case pingResp(PingRespPacket)
+    case puback(PubackPacket)
+    case pubcomp(PubcompPacket)
+    case publish(PublishPacket)
+    case pubrec(PubrecPacket)
+    case pubrel(PubrelPacket)
+    case suback(SubackPacket)
+    case subscribe(SubscribePacket)
+    case unsuback(UnsubackPacket)
+    case unsubscribe(UnsubscribePacket)
 }
 
 extension Sequence {

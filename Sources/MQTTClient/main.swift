@@ -10,8 +10,8 @@ import NIO
 import MQTT
 
 private final class MQTTClientHandler: ChannelInboundHandler {
-    public typealias InboundIn = MQTTResponseMessage
-    public typealias OutboundOut = MQTTRequestMessage
+    public typealias InboundIn = MQTTPacket
+    public typealias OutboundOut = MQTTPacket
     
     func channelRead(ctx: ChannelHandlerContext, data: NIOAny) {
         let response = unwrapInboundIn(data)
@@ -46,7 +46,7 @@ class MQTTClient {
             .then { (channel) -> EventLoopFuture<Void> in
                 print("Client connected to server: \(channel.remoteAddress!).")
                 self.channel = channel
-                return channel.writeAndFlush(NIOAny(MQTTRequestMessage.connect))
+                return channel.writeAndFlush(NIOAny(MQTTPacket.connect))
             }
     }
     

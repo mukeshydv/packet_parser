@@ -7,19 +7,19 @@
 
 import Foundation
 
-struct SubackPacket: MQTTPacketCodable {
+public struct SubackPacket: MQTTPacketCodable {
     let header: Header
     let payload: [ReasonCode]
     
-    let fixedHeader: MQTTPacketFixedHeader
+    public let fixedHeader: MQTTPacketFixedHeader
     
-    init(header: Header, payload: [ReasonCode]) {
+    public init(header: Header, payload: [ReasonCode]) {
         self.fixedHeader = MQTTPacketFixedHeader(packetType: .SUBACK, flags: 0)
         self.header = header
         self.payload = payload
     }
     
-    init(decoder: [UInt8]) throws {
+    public init(decoder: [UInt8]) throws {
         if decoder.count == 0 {
             throw PacketError.invalidPacket("Packet identifier invalid")
         }
@@ -44,30 +44,30 @@ struct SubackPacket: MQTTPacketCodable {
         payload = payloadBytes.compactMap(ReasonCode.init)
     }
     
-    func encodedVariableHeader() throws -> [UInt8] {
+    public func encodedVariableHeader() throws -> [UInt8] {
         return try header.encode()
     }
     
-    func encodedPayload() throws -> [UInt8] {
+    public func encodedPayload() throws -> [UInt8] {
         return payload.map { $0.rawValue }
     }
 }
 
 extension SubackPacket {
-    struct Header {
-        typealias Property = PubackPacket.Header.Property
+    public struct Header {
+        public typealias Property = PubackPacket.Header.Property
         
         let identifier: UInt16
         let properties: Property
         
         fileprivate(set) var totalLength = 0
         
-        init(identifier: UInt16, properties: Property = .init()) {
+        public init(identifier: UInt16, properties: Property = .init()) {
             self.identifier = identifier
             self.properties = properties
         }
         
-        init(decoder: [UInt8]) throws {
+        public init(decoder: [UInt8]) throws {
             if decoder.count < 3 {
                 throw PacketError.invalidPacket("identifier not present")
             }

@@ -7,17 +7,17 @@
 
 import Foundation
 
-struct PubackPacket: MQTTPacketCodable {
+public struct PubackPacket: MQTTPacketCodable {
     let header: Header
     
-    let fixedHeader: MQTTPacketFixedHeader
+    public let fixedHeader: MQTTPacketFixedHeader
     
-    init(header: Header) {
+    public init(header: Header) {
         self.fixedHeader = MQTTPacketFixedHeader(packetType: .PUBACK, flags: 0)
         self.header = header
     }
     
-    init(decoder: [UInt8]) throws {
+    public init(decoder: [UInt8]) throws {
         if decoder.count == 0 {
             throw PacketError.invalidPacket("Packet identifier invalid")
         }
@@ -39,17 +39,17 @@ struct PubackPacket: MQTTPacketCodable {
         header = try Header(decoder: remainingBytes, remainingLength: variableHeaderLength.value)
     }
     
-    func encodedVariableHeader() throws -> [UInt8] {
+    public func encodedVariableHeader() throws -> [UInt8] {
         return try header.encode()
     }
     
-    func encodedPayload() throws -> [UInt8] {
+    public func encodedPayload() throws -> [UInt8] {
         return []
     }
 }
 
 extension PubackPacket {
-    struct Header {
+    public struct Header {
         let identifier: UInt16
         let reasonCode: ReasonCode
         let properties: Property
@@ -119,17 +119,17 @@ extension PubackPacket {
 }
 
 extension PubackPacket.Header {
-    struct Property {
+    public struct Property {
         let reasonString: String?
         let userProperty: [String: String]?
         private(set) var totalLength = 0
         
-        init(reasonString: String? = nil, userProperty: [String: String]? = nil) {
+        public init(reasonString: String? = nil, userProperty: [String: String]? = nil) {
             self.reasonString = reasonString
             self.userProperty = userProperty
         }
         
-        init(decoder: [UInt8]) throws {
+        public init(decoder: [UInt8]) throws {
             var reasonString: String?
             var userProperty: [String: String] = [:]
             

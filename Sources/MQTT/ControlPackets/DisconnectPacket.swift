@@ -7,17 +7,17 @@
 
 import Foundation
 
-struct DisconnectPacket: MQTTPacketCodable {
+public struct DisconnectPacket: MQTTPacketCodable {
     let header: Header
     
-    let fixedHeader: MQTTPacketFixedHeader
+    public let fixedHeader: MQTTPacketFixedHeader
     
-    init(header: Header = .init()) {
+    public init(header: Header = .init()) {
         fixedHeader = MQTTPacketFixedHeader(packetType: .DISCONNECT, flags: 0)
         self.header = header
     }
     
-    init(decoder: [UInt8]) throws {
+    public init(decoder: [UInt8]) throws {
         if decoder.count == 0 {
             throw PacketError.invalidPacket("Packet identifier invalid")
         }
@@ -39,26 +39,26 @@ struct DisconnectPacket: MQTTPacketCodable {
         header = try Header(decoder: remainingBytes, remainingLength: variableHeaderLength.value)
     }
     
-    func encodedVariableHeader() throws -> [UInt8] {
+    public func encodedVariableHeader() throws -> [UInt8] {
         return try header.encode()
     }
     
-    func encodedPayload() throws -> [UInt8] {
+    public func encodedPayload() throws -> [UInt8] {
         return []
     }
 }
 
 extension DisconnectPacket {
-    struct Header {
+    public struct Header {
         let reasonCode: ReasonCode
         let properties: Property
         
-        init(reasonCode: ReasonCode = .success, properties: Property = .init()) {
+        public init(reasonCode: ReasonCode = .success, properties: Property = .init()) {
             self.reasonCode = reasonCode
             self.properties = properties
         }
         
-        init(decoder: [UInt8], remainingLength: UInt32) throws {
+        public init(decoder: [UInt8], remainingLength: UInt32) throws {
             var reasonCode: ReasonCode
             var properties: Property
             
@@ -102,13 +102,13 @@ extension DisconnectPacket {
 }
 
 extension DisconnectPacket.Header {
-    struct Property {
+    public struct Property {
         let sessionExpiryInterval: UInt32?
         let reasonString: String?
         let userProperty: [String: String]?
         let serverReference: String?
         
-        init(sessionExpiryInterval: UInt32? = nil,
+        public init(sessionExpiryInterval: UInt32? = nil,
              reasonString: String? = nil,
              userProperty: [String: String]? = nil,
              serverReference: String? = nil) {
@@ -118,7 +118,7 @@ extension DisconnectPacket.Header {
             self.serverReference = serverReference
         }
         
-        init(decoder: [UInt8]) throws {
+        public init(decoder: [UInt8]) throws {
             var sessionExpiryInterval: UInt32?
             var reasonString: String?
             var userProperty: [String: String] = [:]

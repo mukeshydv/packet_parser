@@ -7,21 +7,21 @@
 
 import Foundation
 
-struct UnsubackPacket: MQTTPacketCodable {
-    typealias Header = SubackPacket.Header
+public struct UnsubackPacket: MQTTPacketCodable {
+    public typealias Header = SubackPacket.Header
     
     let header: Header
     let payload: [ReasonCode]
     
-    let fixedHeader: MQTTPacketFixedHeader
+    public let fixedHeader: MQTTPacketFixedHeader
     
-    init(header: Header, payload: [ReasonCode]) {
+    public init(header: Header, payload: [ReasonCode]) {
         self.fixedHeader = MQTTPacketFixedHeader(packetType: .UNSUBACK, flags: 0)
         self.header = header
         self.payload = payload
     }
     
-    init(decoder: [UInt8]) throws {
+    public init(decoder: [UInt8]) throws {
         if decoder.count == 0 {
             throw PacketError.invalidPacket("Packet identifier invalid")
         }
@@ -51,11 +51,11 @@ struct UnsubackPacket: MQTTPacketCodable {
         payload = payloadBytes.compactMap(ReasonCode.init)
     }
     
-    func encodedVariableHeader() throws -> [UInt8] {
+    public func encodedVariableHeader() throws -> [UInt8] {
         return try header.encode()
     }
     
-    func encodedPayload() throws -> [UInt8] {
+    public func encodedPayload() throws -> [UInt8] {
         return payload.map { $0.rawValue }
     }
 }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct PublishPacket: MQTTPacketCodable {
+public struct PublishPacket: MQTTPacketCodable {
     
     let dup: Bool
     let qos: UInt8
@@ -15,9 +15,9 @@ struct PublishPacket: MQTTPacketCodable {
     let header: Header
     let payload: Data?
     
-    let fixedHeader: MQTTPacketFixedHeader
+    public let fixedHeader: MQTTPacketFixedHeader
     
-    init(dup: Bool, qos: UInt8, retain: Bool, header: Header, payload: Data? = nil) {
+    public init(dup: Bool, qos: UInt8, retain: Bool, header: Header, payload: Data? = nil) {
         self.dup = dup
         self.qos = qos
         self.retain = retain
@@ -28,7 +28,7 @@ struct PublishPacket: MQTTPacketCodable {
         self.fixedHeader = MQTTPacketFixedHeader(packetType: .PUBLISH, flags: flag)
     }
     
-    init(decoder: [UInt8]) throws {
+    public init(decoder: [UInt8]) throws {
         if decoder.count == 0 {
             throw PacketError.invalidPacket("Packet identifier invalid")
         }
@@ -57,30 +57,30 @@ struct PublishPacket: MQTTPacketCodable {
         payload = Data(payloadBytes)
     }
     
-    func encodedVariableHeader() throws -> [UInt8] {
+    public func encodedVariableHeader() throws -> [UInt8] {
         return try header.encode()
     }
     
-    func encodedPayload() throws -> [UInt8] {
+    public func encodedPayload() throws -> [UInt8] {
         return payload?.array ?? []
     }
 }
 
 extension PublishPacket {
-    struct Header {
+    public struct Header {
         let topicName: String
         let identifier: UInt16?
         let properties: Property
         
         fileprivate var totalLength: Int = 0
         
-        init(topicName: String, identifier: UInt16? = nil, properties: Property = Property()) {
+        public init(topicName: String, identifier: UInt16? = nil, properties: Property = Property()) {
             self.topicName = topicName
             self.identifier = identifier
             self.properties = properties
         }
         
-        init(decoder: [UInt8], qos: UInt8) throws {
+        public init(decoder: [UInt8], qos: UInt8) throws {
             if decoder.count == 0 {
                 throw PacketError.invalidPacket("topic name not found")
             }
@@ -124,7 +124,7 @@ extension PublishPacket {
 }
 
 extension PublishPacket.Header {
-    struct Property {
+    public struct Property {
         let payloadFormatIndicator: Bool?
         let messageExpiryInterval: UInt32?
         let topicAlias: UInt16?
@@ -136,7 +136,7 @@ extension PublishPacket.Header {
         
         fileprivate var totalLength: Int = 0
         
-        init(
+        public init(
             payloadFormatIndicator: Bool? = nil,
             messageExpiryInterval: UInt32? = nil,
             topicAlias: UInt16? = nil,
@@ -156,7 +156,7 @@ extension PublishPacket.Header {
             self.contentType = contentType
         }
         
-        init?(decoder: [UInt8]) throws {
+        public init?(decoder: [UInt8]) throws {
             var payloadFormatIndicator: Bool? = nil
             var messageExpiryInterval: UInt32? = nil
             var topicAlias: UInt16? = nil

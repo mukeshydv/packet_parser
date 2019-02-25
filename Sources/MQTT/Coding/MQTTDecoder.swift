@@ -8,24 +8,6 @@
 import Foundation
 import NIO
 
-enum MQTTPacket {
-    case connect(ConnectPacket)
-    case auth(AuthPacket)
-    case connack(ConnackPacket)
-    case disconnect(DisconnectPacket)
-    case pingReq(PingReqPacket)
-    case pingResp(PingRespPacket)
-    case puback(PubackPacket)
-    case pubcomp(PubcompPacket)
-    case publish(PublishPacket)
-    case pubrec(PubrecPacket)
-    case pubrel(PubrelPacket)
-    case suback(SubackPacket)
-    case subscribe(SubscribePacket)
-    case unsuback(UnsubackPacket)
-    case unsubscribe(UnsubscribePacket)
-}
-
 class MQTTDecoder {
     private let stages = [parseFixedHeader, parsePacketLength, parsePayload]
     

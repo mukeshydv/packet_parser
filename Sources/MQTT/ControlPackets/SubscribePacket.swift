@@ -7,20 +7,20 @@
 
 import Foundation
 
-struct SubscribePacket: MQTTPacketCodable {
+public struct SubscribePacket: MQTTPacketCodable {
     let header: Header
     let payload: Payload
     
-    let fixedHeader: MQTTPacketFixedHeader
+    public let fixedHeader: MQTTPacketFixedHeader
     
-    init(header: Header, payload: Payload) {
+    public init(header: Header, payload: Payload) {
         self.fixedHeader = MQTTPacketFixedHeader(packetType: .SUBSCRIBE, flags: 2)
         
         self.header = header
         self.payload = payload
     }
     
-    init(decoder: [UInt8]) throws {
+    public init(decoder: [UInt8]) throws {
         if decoder.count == 0 {
             throw PacketError.invalidPacket("Packet identifier invalid")
         }
@@ -45,28 +45,28 @@ struct SubscribePacket: MQTTPacketCodable {
         payload = try Payload(decoder: payloadBytes)
     }
     
-    func encodedVariableHeader() throws -> [UInt8] {
+    public func encodedVariableHeader() throws -> [UInt8] {
         return try header.encode()
     }
     
-    func encodedPayload() throws -> [UInt8] {
+    public func encodedPayload() throws -> [UInt8] {
         return try payload.encode()
     }
 }
 
 extension SubscribePacket {
-    struct Header {
+    public struct Header {
         let identifier: UInt16
         let properties: Property
         
         fileprivate var totalLength: Int = 0
         
-        init(identifier: UInt16, properties: Property = .init()) {
+        public init(identifier: UInt16, properties: Property = .init()) {
             self.identifier = identifier
             self.properties = properties
         }
         
-        init(decoder: [UInt8]) throws {
+        public init(decoder: [UInt8]) throws {
             if decoder.count < 2 {
                 throw PacketError.invalidPacket("identifier not present")
             }
@@ -89,14 +89,14 @@ extension SubscribePacket {
         }
     }
     
-    struct Payload {
+    public struct Payload {
         let topics: [String: SubscriptionOption]
         
-        init(topics: [String: SubscriptionOption]) {
+        public init(topics: [String: SubscriptionOption]) {
             self.topics = topics
         }
         
-        init(decoder: [UInt8]) throws {
+        public init(decoder: [UInt8]) throws {
             if decoder.count == 0 {
                 throw PacketError.payloadError("No payload found")
             }
@@ -138,13 +138,13 @@ extension SubscribePacket {
 }
 
 extension SubscribePacket.Payload {
-    struct SubscriptionOption {
+    public struct SubscriptionOption {
         let maximumQoS: UInt8
         let noLocalOption: Bool
         let retainAsPublished: Bool
         let retainHandling: UInt8
         
-        init(
+        public init(
             maximumQoS: UInt8,
             noLocalOption: Bool,
             retainAsPublished: Bool,
@@ -156,7 +156,7 @@ extension SubscribePacket.Payload {
             self.retainHandling = retainHandling
         }
         
-        init(decoder: UInt8) {
+        public init(decoder: UInt8) {
             maximumQoS = decoder & 0x03
             noLocalOption = decoder & 0x04 == 1
             retainAsPublished = decoder & 0x08 == 0x08
@@ -176,18 +176,18 @@ extension SubscribePacket.Payload {
 }
 
 extension SubscribePacket.Header {
-    struct Property {
+    public struct Property {
         let subscriptionIdentifier: UInt32?
         let userProperty: [String: String]?
         
         fileprivate var totalLength: Int = 0
         
-        init(subscriptionIdentifier: UInt32? = nil, userProperty: [String: String]? = nil) {
+        public init(subscriptionIdentifier: UInt32? = nil, userProperty: [String: String]? = nil) {
             self.subscriptionIdentifier = subscriptionIdentifier
             self.userProperty = userProperty
         }
         
-        init(decoder: [UInt8]) throws {
+        public init(decoder: [UInt8]) throws {
             var subscriptionIdentifier: UInt32?
             var userProperty: [String: String] = [:]
             

@@ -7,19 +7,19 @@
 
 import Foundation
 
-struct UnsubscribePacket: MQTTPacketCodable {
+public struct UnsubscribePacket: MQTTPacketCodable {
     let header: Header
     let payload: [String]
     
-    let fixedHeader: MQTTPacketFixedHeader
+    public let fixedHeader: MQTTPacketFixedHeader
     
-    init(header: Header, payload: [String]) {
+    public init(header: Header, payload: [String]) {
         self.fixedHeader = MQTTPacketFixedHeader(packetType: .UNSUBSCRIBE, flags: 2)
         self.header = header
         self.payload = payload
     }
     
-    init(decoder: [UInt8]) throws {
+    public init(decoder: [UInt8]) throws {
         if decoder.count == 0 {
             throw PacketError.invalidPacket("Packet identifier invalid")
         }
@@ -56,11 +56,11 @@ struct UnsubscribePacket: MQTTPacketCodable {
         self.payload = payload
     }
     
-    func encodedVariableHeader() throws -> [UInt8] {
+    public func encodedVariableHeader() throws -> [UInt8] {
         return try header.encode()
     }
     
-    func encodedPayload() throws -> [UInt8] {
+    public func encodedPayload() throws -> [UInt8] {
         var bytes: [UInt8] = []
         
         for data in payload {
@@ -73,18 +73,18 @@ struct UnsubscribePacket: MQTTPacketCodable {
 }
 
 extension UnsubscribePacket {
-    struct Header {
+    public struct Header {
         let identifier: UInt16
         let properties: Property
         
         fileprivate(set) var totalLength = 0
         
-        init(identifier: UInt16, properties: Property = .init()) {
+        public init(identifier: UInt16, properties: Property = .init()) {
             self.identifier = identifier
             self.properties = properties
         }
         
-        init(decoder: [UInt8]) throws {
+        public init(decoder: [UInt8]) throws {
             if decoder.count < 3 {
                 throw PacketError.invalidPacket("identifier not present")
             }
@@ -108,15 +108,15 @@ extension UnsubscribePacket {
 }
 
 extension UnsubscribePacket.Header {
-    struct Property {
+    public struct Property {
         let userProperty: [String: String]?
         private(set) var totalLength = 0
         
-        init(userProperty: [String: String]? = nil) {
+        public init(userProperty: [String: String]? = nil) {
             self.userProperty = userProperty
         }
         
-        init(decoder: [UInt8]) throws {
+        public init(decoder: [UInt8]) throws {
             var userProperty: [String: String] = [:]
             
             if decoder.count > 0 {

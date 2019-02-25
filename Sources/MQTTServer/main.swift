@@ -13,17 +13,17 @@ let host = "::1"
 let port = 8080
 
 private final class MQTTHandler: ChannelInboundHandler {
-    public typealias InboundIn = MQTTRequestMessage
-    public typealias OutboundOut = MQTTResponseMessage
+    public typealias InboundIn = MQTTPacket
+    public typealias OutboundOut = MQTTPacket
     
     
     func channelRead(ctx: ChannelHandlerContext, data: NIOAny) {
         let request = unwrapInboundIn(data)
         
-        switch request {
-        case .connect:
-            ctx.writeAndFlush(wrapOutboundOut(.connectAck), promise: nil)
-        }
+//        switch request {
+//        case .connect:
+//            ctx.writeAndFlush(wrapOutboundOut(.connectAck), promise: nil)
+//        }
     }
 }
 

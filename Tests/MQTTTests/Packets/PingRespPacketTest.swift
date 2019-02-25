@@ -14,8 +14,8 @@ class PingRespPacketTest: XCTestCase {
             208, 0
         ]
         
-        let testDecodedPacket = try! PingRespPacket(decoder: bytes)
-        XCTAssert(testDecodedPacket != nil)
+        let _ = try! PingRespPacket(decoder: bytes)
+        XCTAssert(true)
     }
     
     func testEncodingEmpty() {
