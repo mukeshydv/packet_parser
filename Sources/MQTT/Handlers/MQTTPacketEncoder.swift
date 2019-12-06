@@ -15,7 +15,7 @@ public class MQTTPacketEncoder: ChannelOutboundHandler {
     public func write(ctx: ChannelHandlerContext, data: NIOAny, promise: EventLoopPromise<Void>?) {
         let request = unwrapOutboundIn(data)
         let bytes = try! request.encode()
-        var buffer = ByteBufferAllocator().buffer(capacity: bytes.count)
+        var buffer = ctx.channel.allocator.buffer(capacity: bytes.count)
         buffer.write(bytes: bytes)
         
         let response = wrapOutboundOut(buffer)

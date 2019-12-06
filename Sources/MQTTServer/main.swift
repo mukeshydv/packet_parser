@@ -19,7 +19,47 @@ private final class MQTTHandler: ChannelInboundHandler {
     
     func channelRead(ctx: ChannelHandlerContext, data: NIOAny) {
         let request = unwrapInboundIn(data)
+        handlePacket(ctx: ctx, request)
         print(request)
+    }
+    
+    private func handlePacket(ctx: ChannelHandlerContext, _ packet: MQTTPacket) {
+        switch packet {
+        case .connect(let packet):
+            handleConnect(ctx: ctx, packet)
+        case .pingReq(let packet):
+            handlePing(ctx: ctx, packet)
+        case .publish(let packet):
+            handlePublish(ctx: ctx, packet)
+        default:
+            break
+        }
+    }
+    
+    private func handleConnect(ctx: ChannelHandlerContext, _ packet: ConnectPacket) {
+        let headers = ConnackPacket.Header(sessionPresent: true, reasonCode: .success)
+        let responsePacket = ConnackPacket(header: headers)
+        
+        let response = wrapOutboundOut(.connack(responsePacket))
+        ctx.writeAndFlush(response, promise: nil)
+    }
+    
+    private func handlePing(ctx: ChannelHandlerContext, _ packet: PingReqPacket) {
+        let responsePacket = PingRespPacket()
+        
+        let response = wrapOutboundOut(.pingResp(responsePacket))
+        ctx.writeAndFlush(response, promise: nil)
+    }
+    
+    private func handlePublish(ctx: ChannelHandlerContext, _ packet: PublishPacket) {
+        let header = PubackPacket.Header(identifier: packet.header.identifier ?? 0)
+        let responsePacket = PubackPacket(header: header)
+        
+        let response = wrapOutboundOut(.puback(responsePacket))
+        ctx.writeAndFlush(response, promise: nil)
+        
+        let publishResponse = wrapOutboundOut(.publish(packet))
+        ctx.writeAndFlush(publishResponse, promise: nil)
     }
 }
 

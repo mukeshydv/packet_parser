@@ -50,11 +50,11 @@ public struct PubackPacket: MQTTPacketCodable {
 
 extension PubackPacket {
     public struct Header {
-        let identifier: UInt16
-        let reasonCode: ReasonCode
-        let properties: Property
+        public let identifier: UInt16
+        public let reasonCode: ReasonCode
+        public let properties: Property
         
-        init(
+        public init(
             identifier: UInt16,
             reasonCode: ReasonCode = .success,
             properties: Property = .init()

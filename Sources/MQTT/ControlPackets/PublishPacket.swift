@@ -12,7 +12,7 @@ public struct PublishPacket: MQTTPacketCodable {
     let dup: Bool
     let qos: UInt8
     let retain: Bool
-    let header: Header
+    public let header: Header
     let payload: Data?
     
     public let fixedHeader: MQTTPacketFixedHeader
@@ -68,9 +68,9 @@ public struct PublishPacket: MQTTPacketCodable {
 
 extension PublishPacket {
     public struct Header {
-        let topicName: String
-        let identifier: UInt16?
-        let properties: Property
+        public let topicName: String
+        public let identifier: UInt16?
+        public let properties: Property
         
         fileprivate var totalLength: Int = 0
         
